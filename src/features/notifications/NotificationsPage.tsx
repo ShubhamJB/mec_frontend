@@ -1,165 +1,126 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AlertTriangle, Bell, Check, Phone, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../auth/AuthContext';
+import { ApiError, apiClient } from '../../api/client';
+import { NotificationItem, PaginatedResponse, RoadsideRequestItem } from '../../api/types';
 import { PublicLayout } from '../../components/PublicLayout';
-import { apiClient } from '../../api/client';
-import { NotificationItem, PaginatedResponse } from '../../api/types';
+import { useToast } from '../../components/ToastProvider';
+import './notifications.css';
+
+const isUrgent = (notification: NotificationItem) => notification.title.startsWith('URGENT:');
+const formatDate = (value: string) => new Intl.DateTimeFormat(undefined, {
+  month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
+}).format(new Date(value));
 
 export const NotificationsPage: React.FC = () => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [ownerRequests, setOwnerRequests] = useState<RoadsideRequestItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [filterUnread, setFilterUnread] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  const fetchNotifications = async () => {
-    setIsLoading(true);
+  const fetchNotifications = useCallback(async (quiet = false) => {
+    if (!quiet) setIsLoading(true);
     try {
       const q = filterUnread ? '?is_read=false' : '';
-      const [listRes, countRes] = await Promise.all([
-        apiClient<PaginatedResponse<NotificationItem>>(`/notifications${q}`),
-        apiClient<{ unread_count: number }>('/notifications/unread-count').catch(() => ({ unread_count: 0 })),
+      const requests = user?.role === 'GARAGE_OWNER'
+        ? apiClient<RoadsideRequestItem[]>('/owner/roadside/requests', { skipGlobalLoader: true }).catch(() => [])
+        : Promise.resolve([] as RoadsideRequestItem[]);
+      const [listRes, countRes, requestRes] = await Promise.all([
+        apiClient<PaginatedResponse<NotificationItem>>(`/notifications${q}`, { skipGlobalLoader: true }),
+        apiClient<{ unread_count: number }>('/notifications/unread-count', { skipGlobalLoader: true }).catch(() => ({ unread_count: 0 })),
+        requests,
       ]);
       setNotifications(listRes.items || []);
       setUnreadCount(countRes.unread_count || 0);
-    } catch {
+      setOwnerRequests(requestRes);
+    } catch (error) {
+      if (!quiet) showToast(error instanceof ApiError ? error.message : 'Could not load notifications.', 'error');
       setNotifications([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filterUnread, showToast, user?.role]);
 
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
-  }, [filterUnread]);
+    void fetchNotifications();
+    const interval = window.setInterval(() => void fetchNotifications(true), 30000);
+    return () => window.clearInterval(interval);
+  }, [fetchNotifications]);
 
   const markAsRead = async (id: string) => {
     try {
-      await apiClient(`/notifications/${id}/read`, { method: 'PATCH' });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      );
-      setUnreadCount((c) => Math.max(0, c - 1));
-    } catch {
-      // ignore
+      await apiClient(`/notifications/${id}/read`, { method: 'PATCH', skipGlobalLoader: true });
+      setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, is_read: true } : n));
+      setUnreadCount((count) => Math.max(0, count - 1));
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Could not update notification.', 'error');
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      await apiClient('/notifications/read-all', { method: 'PATCH' });
+      await apiClient('/notifications/read-all', { method: 'PATCH', skipGlobalLoader: true });
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
-    } catch {
-      // ignore
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Could not update notifications.', 'error');
+    }
+  };
+
+  const callRider = async (request: RoadsideRequestItem) => {
+    if (!request.contact_phone) return;
+    setBusyId(request.id);
+    try {
+      const updated = await apiClient<RoadsideRequestItem>(`/owner/roadside/requests/${request.id}/calling`, { method: 'POST', skipGlobalLoader: true });
+      setOwnerRequests((items) => items.map((item) => item.id === updated.id ? updated : item));
+      const linkedNotification = notifications.find((item) => item.related_entity_id === request.id && isUrgent(item) && !item.is_read);
+      if (linkedNotification) await markAsRead(linkedNotification.id);
+      showToast('The rider has been notified that you are calling now.', 'success');
+      window.location.href = `tel:${request.contact_phone}`;
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Could not start the call.', 'error');
+    } finally {
+      setBusyId(null);
     }
   };
 
   return (
     <PublicLayout>
-      <div style={{ maxWidth: '720px', margin: '40px auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <main className="notifications-page">
+        <header className="notifications-header">
           <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 600 }}>Notifications</h1>
-            <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
-              {unreadCount} unread {unreadCount === 1 ? 'alert' : 'alerts'}
-            </p>
+            <span className="notifications-kicker"><Bell size={14}/> INBOX</span>
+            <h1>Notifications</h1>
+            <p>{unreadCount} unread {unreadCount === 1 ? 'alert' : 'alerts'} · Updates for your account and roadside requests.</p>
           </div>
+          <div className="notifications-toolbar">
+            <button className={`notifications-filter ${filterUnread ? 'is-active' : ''}`} type="button" onClick={() => setFilterUnread((value) => !value)}>{filterUnread ? 'Unread only' : 'All notifications'}</button>
+            {unreadCount > 0 && <button className="notifications-mark-all" type="button" onClick={() => void markAllAsRead()}><Check size={14}/> Mark all read</button>}
+            <button className="notifications-refresh" type="button" onClick={() => void fetchNotifications()} disabled={isLoading}><RefreshCw size={14} className={isLoading ? 'is-spinning' : ''}/> Refresh</button>
+          </div>
+        </header>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => setFilterUnread(!filterUnread)}
-              style={{
-                fontSize: 'var(--step-small)',
-                padding: '6px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: filterUnread ? 'var(--rule)' : 'var(--surface)',
-              }}
-            >
-              {filterUnread ? 'Showing Unread' : 'Show Unread Only'}
-            </button>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                style={{
-                  fontSize: 'var(--step-small)',
-                  padding: '6px 12px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--surface-raised)',
-                }}
-              >
-                Mark all as read
-              </button>
-            )}
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '40px' }}>Loading alerts...</div>
-        ) : notifications.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--surface)' }}>
-            <p style={{ color: 'var(--muted)' }}>You have no notifications at this time.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {notifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => !n.is_read && markAsRead(n.id)}
-                style={{
-                  padding: '16px 20px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: n.is_read ? 'var(--surface)' : 'var(--card)',
-                  cursor: n.is_read ? 'default' : 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    {!n.is_read && (
-                      <span
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          backgroundColor: 'var(--accent)',
-                        }}
-                      />
-                    )}
-                    <h3 style={{ fontSize: '15px', fontWeight: n.is_read ? 500 : 600 }}>{n.title}</h3>
-                  </div>
-                  <p style={{ fontSize: 'var(--step-small)', color: 'var(--ink-secondary)', marginBottom: '8px' }}>
-                    {n.message}
-                  </p>
-                  <span className="tabular-nums" style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                    {new Date(n.created_at).toLocaleString()}
-                  </span>
-                </div>
-
-                {!n.is_read && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      markAsRead(n.id);
-                    }}
-                    style={{
-                      fontSize: '11px',
-                      color: 'var(--accent)',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Mark read
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        <section className="notifications-table-card" aria-label="Notifications list">
+          {isLoading ? <div className="notifications-loading" role="status"><span className="notifications-spinner"/>Loading notifications…</div> : notifications.length === 0 ? <div className="notifications-empty"><Bell size={20}/><strong>You’re all caught up</strong><p>New notifications will appear here.</p></div> : <div className="notifications-table-scroll"><table className="notifications-table"><thead><tr><th>Severity</th><th>Notification</th><th>Received</th><th>Status</th><th>Action</th></tr></thead><tbody>{notifications.map((notification) => {
+            const urgent = isUrgent(notification);
+            const request = urgent && user?.role === 'GARAGE_OWNER'
+              ? ownerRequests.find((item) => item.id === notification.related_entity_id)
+              : undefined;
+            const canCall = !!request?.contact_phone && request.status === 'ACCEPTED' && request.customer_contact_confirmed === false && !request.owner_calling_at;
+            return <tr key={notification.id} className={`${urgent ? 'is-urgent' : ''} ${notification.is_read ? 'is-read' : 'is-unread'}`}>
+              <td><span className={`notifications-severity ${urgent ? 'is-high' : 'is-normal'}`}>{urgent && <AlertTriangle size={12}/>} {urgent ? 'High' : 'Normal'}</span></td>
+              <td className="notifications-message"><strong>{notification.title.replace(/^URGENT:\s*/, '')}</strong><span>{notification.message}</span></td>
+              <td className="notifications-date">{formatDate(notification.created_at)}</td>
+              <td><span className={`notifications-status ${notification.is_read ? 'is-read' : 'is-new'}`}>{notification.is_read ? 'Read' : 'New'}</span></td>
+              <td><div className="notifications-row-actions">{canCall && <button className="notifications-call" type="button" disabled={busyId === request!.id} onClick={() => void callRider(request!)}><Phone size={13}/>{busyId === request!.id ? 'Calling…' : 'Call'}</button>}{!notification.is_read && <button className="notifications-read" type="button" onClick={() => void markAsRead(notification.id)}>Mark read</button>}{request?.owner_calling_at && <span className="notifications-called">Calling rider</span>}</div></td>
+            </tr>;
+          })}</tbody></table></div>}
+        </section>
+      </main>
     </PublicLayout>
   );
 };

@@ -191,6 +191,10 @@ export interface RoadsideRequestItem {
   quote_amount: string | null;
   quote_currency: string | null;
   eta_minutes: number | null;
+  accepted_at: string | null;
+  customer_contact_confirmed: boolean | null;
+  owner_calling_at?: string | null;
+  call_followup_failed?: boolean;
   decline_reason: string | null;
   expires_at: string;
   created_at: string;
@@ -206,6 +210,10 @@ export interface GuestRoadsideRequestStatus {
   quote_amount: string | null;
   quote_currency: string | null;
   eta_minutes: number | null;
+  accepted_at: string | null;
+  customer_contact_confirmed: boolean | null;
+  owner_calling_at?: string | null;
+  call_followup_failed?: boolean;
   updated_at: string;
 }
 

@@ -127,7 +127,7 @@ src/
 
 ## Signing in locally
 
-After seeding the backend (`docker compose exec api python -m app.db.seed` from `../backend`), the admin is `admin@seed.example.com`, and owners and customers are `owner0001`…`owner0500` and `customer0001`…`customer0200` at `@seed.example.com`. The shared password is printed once at the end of the seed output. Admins sign in at `/admin/login`; everyone else at `/login`.
+Seed local data from `../backend` with `docker compose --profile tools run --rm seed`. The command prints the admin and demo garage-owner IDs, login emails, and shared password. Admins sign in at `/admin/login`; everyone else at `/login`.
 
 Photo uploads need the backend's local storage provider (`STORAGE_PROVIDER=local`, already set in the backend `docker-compose.yml`); with the default stub provider uploads succeed but the images cannot be displayed.
 
