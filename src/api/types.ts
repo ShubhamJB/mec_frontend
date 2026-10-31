@@ -136,6 +136,17 @@ export interface OwnerDashboardSummary {
   review_count: number;
 }
 
+export interface GarageStaffItem {
+  id: string;
+  garage_id: string;
+  full_name: string;
+  phone: string;
+  role_title: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AdminDashboardCounts {
   total_users: number;
   total_customers: number;

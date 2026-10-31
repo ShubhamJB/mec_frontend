@@ -51,9 +51,10 @@ export const OwnerDashboardPage: React.FC = () => {
         method: 'PATCH',
         body: JSON.stringify({
           is_temporarily_unavailable: newUnavailable,
-          message: newUnavailable ? unavailMessage.trim() || 'Temporarily closed for road assistance' : null,
+          message: newUnavailable ? unavailMessage.trim() || null : null,
         }),
       });
+      if (!newUnavailable) setUnavailMessage('');
       await fetchDashboard();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -89,12 +90,12 @@ export const OwnerDashboardPage: React.FC = () => {
               style={{
                 maxWidth: '560px',
                 width: '100%',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--card)',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sheet)',
                 padding: '40px 36px',
                 textAlign: 'center',
-                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)',
+                boxShadow: '0 8px 30px var(--shadow-color)',
               }}
             >
               <div
@@ -157,11 +158,11 @@ export const OwnerDashboardPage: React.FC = () => {
                     gap: '8px',
                     padding: '12px 28px',
                     backgroundColor: 'var(--ink)',
-                    color: '#ffffff',
+                    color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
                     fontSize: 'var(--step-small)',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+                    boxShadow: '0 4px 14px var(--shadow-color)',
                   }}
                 >
                   View / Edit Pending Submission &rarr;
@@ -173,12 +174,12 @@ export const OwnerDashboardPage: React.FC = () => {
               style={{
                 maxWidth: '560px',
                 width: '100%',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--card)',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sheet)',
                 padding: '40px 36px',
                 textAlign: 'center',
-                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)',
+                boxShadow: '0 8px 30px var(--shadow-color)',
               }}
             >
               <div
@@ -236,11 +237,11 @@ export const OwnerDashboardPage: React.FC = () => {
                     gap: '8px',
                     padding: '12px 28px',
                     backgroundColor: 'var(--ink)',
-                    color: '#ffffff',
+                    color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
                     fontSize: 'var(--step-small)',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+                    boxShadow: '0 4px 14px var(--shadow-color)',
                   }}
                 >
                   Review &amp; Resubmit Registration &rarr;
@@ -252,12 +253,12 @@ export const OwnerDashboardPage: React.FC = () => {
               style={{
                 maxWidth: '620px',
                 width: '100%',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--card)',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sheet)',
                 padding: '48px 40px',
                 textAlign: 'center',
-                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)',
+                boxShadow: '0 8px 30px var(--shadow-color)',
               }}
             >
               <div
@@ -382,11 +383,11 @@ export const OwnerDashboardPage: React.FC = () => {
                     gap: '8px',
                     padding: '14px 36px',
                     backgroundColor: 'var(--ink)',
-                    color: '#ffffff',
+                    color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
                     fontSize: 'var(--step-body)',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
+                    boxShadow: '0 4px 16px var(--shadow-color)',
                     transition: 'transform 0.1s ease',
                   }}
                 >
@@ -415,7 +416,7 @@ export const OwnerDashboardPage: React.FC = () => {
           gridTemplateColumns: 'repeat(4, 1fr)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--card)',
           marginBottom: '32px',
         }}
       >
@@ -468,132 +469,141 @@ export const OwnerDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Real-time One-Click Availability Control */}
       <section
         style={{
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-sm)',
           padding: '24px',
           marginBottom: '32px',
-          backgroundColor: isTempUnavailable ? 'var(--status-unavail-bg)' : '#fff',
+          backgroundColor: isTempUnavailable ? 'var(--status-unavail-bg)' : 'var(--card)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
-              Workshop Availability Override
-            </h2>
-            <p style={{ fontSize: 'var(--step-caption)', color: 'var(--ink-secondary)', maxWidth: '580px' }}>
-              Currently: <strong>{data.availability.status}</strong> ({data.availability.timezone} local time: {data.availability.local_time}).
-              Marking as temporarily unavailable immediately signals drivers that the workshop is attending to road emergencies or temporarily closed.
-            </p>
-          </div>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>
+          {isTempUnavailable
+            ? "You're closed for now"
+            : data.availability.status === 'OPEN'
+              ? "You're open now"
+              : "You're closed right now"}
+        </h2>
+        <p style={{ fontSize: 'var(--step-caption)', color: 'var(--ink-secondary)', maxWidth: '560px', marginBottom: '16px' }}>
+          {isTempUnavailable
+            ? 'Customers see "Temporarily Unavailable" on your listing. Reopen when you are back and your weekly schedule applies again.'
+            : data.availability.status === 'OPEN'
+              ? 'Your weekly schedule says you are open. Need to close unexpectedly? Customers will see "Temporarily Unavailable" until you reopen.'
+              : 'This follows your weekly schedule. You can still close for now if you want to be marked unavailable even during opening hours.'}
+        </p>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {isTempUnavailable ? (
+        <label style={{ display: 'block', fontSize: 'var(--step-small)', marginBottom: '4px', color: 'var(--ink-secondary)' }}>
+          Message for customers (optional)
+        </label>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            maxLength={300}
+            value={unavailMessage}
+            onChange={(e) => setUnavailMessage(e.target.value)}
+            placeholder="e.g. Back at 3 PM"
+            style={{
+              flex: '1 1 260px',
+              maxWidth: '420px',
+              padding: '8px 12px',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--card)',
+            }}
+          />
+          {isTempUnavailable ? (
+            <>
               <button
                 disabled={toggling}
                 onClick={() => handleToggleAvailability(false)}
                 style={{
                   padding: '8px 16px',
                   backgroundColor: 'var(--accent)',
-                  color: '#fff',
+                  color: 'var(--on-dark)',
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 500,
                   fontSize: 'var(--step-caption)',
                 }}
               >
-                {toggling ? 'Updating...' : 'Resume Normal Availability'}
+                {toggling ? 'Updating...' : 'Reopen now'}
               </button>
-            ) : (
               <button
-                disabled={toggling}
+                disabled={toggling || unavailMessage.trim() === (data.availability.message ?? '')}
                 onClick={() => handleToggleAvailability(true)}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: 'var(--status-unavail-ink)',
-                  color: '#fff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 500,
                   fontSize: 'var(--step-caption)',
                 }}
               >
-                {toggling ? 'Updating...' : 'Mark Temporarily Unavailable'}
+                Save message
               </button>
-            )}
-          </div>
-        </div>
-
-        {isTempUnavailable && (
-          <div style={{ marginTop: '16px' }}>
-            <label style={{ display: 'block', fontSize: 'var(--step-small)', marginBottom: '4px', color: 'var(--status-unavail-ink)' }}>
-              Driver announcement message (max 300 characters):
-            </label>
-            <input
-              type="text"
-              maxLength={300}
-              value={unavailMessage}
-              onChange={(e) => setUnavailMessage(e.target.value)}
-              placeholder="e.g. On-site towing emergency until 3 PM"
+            </>
+          ) : (
+            <button
+              disabled={toggling}
+              onClick={() => handleToggleAvailability(true)}
               style={{
-                width: '100%',
-                maxWidth: '540px',
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
+                padding: '8px 16px',
+                backgroundColor: 'var(--ink)',
+                color: 'var(--on-dark)',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: '#fff',
+                fontWeight: 500,
+                fontSize: 'var(--step-caption)',
               }}
-            />
-          </div>
-        )}
+            >
+              {toggling ? 'Updating...' : 'Close for now'}
+            </button>
+          )}
+        </div>
       </section>
 
-      {/* Quick shortcuts */}
+      <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>Manage your workshop</h2>
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-        <a
-          href="/owner/hours"
-          style={{
-            padding: '16px',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            display: 'block',
-          }}
-        >
-          <strong style={{ display: 'block', fontSize: '15px', marginBottom: '4px' }}>Weekly Schedule</strong>
-          <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-            Configure your standard 7-day opening and closing hours.
-          </span>
-        </a>
-
-        <a
-          href="/owner/photos"
-          style={{
-            padding: '16px',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            display: 'block',
-          }}
-        >
-          <strong style={{ display: 'block', fontSize: '15px', marginBottom: '4px' }}>Workshop Photos</strong>
-          <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-            Manage up to 10 workshop bay and exterior photos.
-          </span>
-        </a>
-
-        <a
-          href="/owner/services"
-          style={{
-            padding: '16px',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            display: 'block',
-          }}
-        >
-          <strong style={{ display: 'block', fontSize: '15px', marginBottom: '4px' }}>Services & Vehicles</strong>
-          <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-            Specify car and bike repair categories offered.
-          </span>
-        </a>
+        {[
+          {
+            to: '/owner/photos',
+            title: 'Workshop photos',
+            text: 'Add up to 10 photos of your bays and storefront. The first one is your cover.',
+            action: 'Upload photos',
+          },
+          {
+            to: '/owner/services',
+            title: 'Services & vehicles',
+            text: 'Choose the repairs you offer and the vehicles you work on.',
+            action: 'Choose services & vehicles',
+          },
+          {
+            to: '/owner/hours',
+            title: 'Weekly schedule',
+            text: 'Set your opening and closing times for each day of the week.',
+            action: 'Edit weekly schedule',
+          },
+        ].map((card) => (
+          <Link
+            key={card.to}
+            to={card.to}
+            style={{
+              padding: '16px',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-sm)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              backgroundColor: 'var(--card)',
+            }}
+          >
+            <strong style={{ fontSize: '15px' }}>{card.title}</strong>
+            <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', flex: 1 }}>{card.text}</span>
+            <span style={{ fontSize: 'var(--step-caption)', fontWeight: 600, color: 'var(--accent)' }}>
+              {card.action} &rarr;
+            </span>
+          </Link>
+        ))}
       </section>
     </AppShell>
   );

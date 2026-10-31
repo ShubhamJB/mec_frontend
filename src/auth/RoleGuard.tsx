@@ -37,7 +37,7 @@ export const RoleGuard: React.FC<{
             sessionStorage.clear();
             window.location.href = isAdmin ? '/admin/login' : '/login';
           }}
-          style={{ padding: '8px 16px', background: 'var(--ink)', color: '#fff', borderRadius: '4px' }}
+          style={{ padding: '8px 16px', background: 'var(--ink)', color: 'var(--on-dark)', borderRadius: '4px' }}
         >
           Sign Out
         </button>
@@ -46,7 +46,7 @@ export const RoleGuard: React.FC<{
   }
 
   if (!allowedRoles.includes(user.role)) {
-    const home = user.role === 'ADMIN' ? '/admin' : user.role === 'GARAGE_OWNER' ? '/owner' : '/';
+    const home = user.role === 'ADMIN' ? '/admin' : user.role === 'GARAGE_OWNER' ? '/owner' : '/find';
     return <Navigate to={home} replace />;
   }
 

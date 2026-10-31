@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import L from 'leaflet';
-import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
-import { DEFAULT_CENTER, DEFAULT_ZOOM, TILE_ATTRIBUTION, TILE_URL, isValidCoordinate } from './mapConfig';
+import { DEFAULT_CENTER, DEFAULT_ZOOM, getTileSource, isValidCoordinate, readToken } from './mapConfig';
+import { createHexIcon, originIcon } from './mapIcons';
 import {
   RouteOption,
   fetchRoutes,
@@ -39,23 +40,50 @@ type RouteState =
   | { status: 'error'; message: string }
   | { status: 'ready'; routes: RouteOption[] };
 
-const ROUTE_COLOR = '#5c6b54';
-const ALTERNATIVE_COLOR = '#8b867f';
+const FIT_ICON =
+  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg>';
 
-const garageIcon = L.divIcon({
-  className: 'fym-pin-wrap',
-  html: '<span class="fym-pin"></span>',
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
-  popupAnchor: [0, -12],
-});
+const FitControl: React.FC<{ points: Array<[number, number]> }> = ({ points }) => {
+  const map = useMap();
+  const pointsRef = React.useRef(points);
+  pointsRef.current = points;
 
-const originIcon = L.divIcon({
-  className: 'fym-pin-wrap',
-  html: '<span class="fym-origin"></span>',
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+  useEffect(() => {
+    const control = new L.Control({ position: 'topleft' });
+    control.onAdd = () => {
+      const container = L.DomUtil.create('div', 'leaflet-bar fym-fit');
+      const button = L.DomUtil.create('a', '', container);
+      button.href = '#';
+      button.title = 'Show all workshops';
+      button.setAttribute('role', 'button');
+      button.setAttribute('aria-label', 'Show all workshops');
+      button.innerHTML = FIT_ICON;
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.on(button, 'click', (event) => {
+        L.DomEvent.preventDefault(event);
+        const current = pointsRef.current;
+        if (current.length === 1) map.setView(current[0], 15);
+        else if (current.length > 1) map.fitBounds(L.latLngBounds(current), { padding: [36, 36], maxZoom: 16 });
+      });
+      return container;
+    };
+    control.addTo(map);
+    return () => {
+      control.remove();
+    };
+  }, [map]);
+
+  return null;
+};
+
+const ScrollZoomOnClick: React.FC = () => {
+  const map = useMap();
+  useMapEvents({
+    click: () => map.scrollWheelZoom.enable(),
+    mouseout: () => map.scrollWheelZoom.disable(),
+  });
+  return null;
+};
 
 const FitToPoints: React.FC<{ points: Array<[number, number]>; paused: boolean }> = ({ points, paused }) => {
   const map = useMap();
@@ -96,6 +124,15 @@ export const GarageMap: React.FC<GarageMapProps> = ({
   const [routeTargetId, setRouteTargetId] = useState<string | null>(null);
   const [routeState, setRouteState] = useState<RouteState>({ status: 'idle' });
   const [selectedRoute, setSelectedRoute] = useState(0);
+  const tiles = useMemo(() => getTileSource(), []);
+  const colors = useMemo(
+    () => ({
+      route: readToken('--map-route', '#1f2de6'),
+      casing: readToken('--map-route-casing', '#ffffff'),
+      alternative: readToken('--map-alt-route', '#8a93a3'),
+    }),
+    []
+  );
 
   const visible = useMemo(
     () => garages.filter((g) => isValidCoordinate(g.latitude, g.longitude)),
@@ -154,26 +191,46 @@ export const GarageMap: React.FC<GarageMapProps> = ({
           scrollWheelZoom={false}
           style={{ height: '100%', width: '100%' }}
         >
-          <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={19} />
+          <TileLayer
+            url={tiles.url}
+            attribution={tiles.attribution}
+            maxZoom={tiles.maxZoom}
+            subdomains={tiles.subdomains}
+          />
           <FitToPoints points={points} paused={routeState.status === 'ready'} />
+          <FitControl points={points} />
+          <ScrollZoomOnClick />
           <FitToRoute path={activePath} />
 
           {routeState.status === 'ready' &&
             routeState.routes.map((route, index) =>
               index === selectedRoute ? null : (
-                <Polyline
-                  key={`alt-${index}`}
-                  positions={route.path}
-                  pathOptions={{ color: ALTERNATIVE_COLOR, weight: 5, opacity: 0.8 }}
-                  eventHandlers={{ click: () => setSelectedRoute(index) }}
-                />
+                <React.Fragment key={`alt-${index}`}>
+                  <Polyline
+                    positions={route.path}
+                    interactive={false}
+                    pathOptions={{ color: colors.casing, weight: 9, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }}
+                  />
+                  <Polyline
+                    positions={route.path}
+                    pathOptions={{ color: colors.alternative, weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }}
+                    eventHandlers={{ click: () => setSelectedRoute(index) }}
+                  />
+                </React.Fragment>
               )
             )}
           {routeState.status === 'ready' && routeState.routes[selectedRoute] && (
-            <Polyline
-              positions={routeState.routes[selectedRoute].path}
-              pathOptions={{ color: ROUTE_COLOR, weight: 6, opacity: 0.95 }}
-            />
+            <>
+              <Polyline
+                positions={routeState.routes[selectedRoute].path}
+                interactive={false}
+                pathOptions={{ color: colors.casing, weight: 11, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              />
+              <Polyline
+                positions={routeState.routes[selectedRoute].path}
+                pathOptions={{ color: colors.route, weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              />
+            </>
           )}
 
           {validOrigin && (
@@ -181,7 +238,12 @@ export const GarageMap: React.FC<GarageMapProps> = ({
           )}
 
           {visible.map((g) => (
-            <Marker key={g.id} position={[g.latitude, g.longitude]} icon={garageIcon} title={g.name}>
+            <Marker key={g.id} position={[g.latitude, g.longitude]} icon={createHexIcon({
+                label: g.average_rating ? g.average_rating.toFixed(1) : undefined,
+                variant: g.id === routeTargetId ? 'selected' : 'default',
+              })}
+              title={g.name}
+            >
               <Popup>
                 {linkToProfile ? (
                   <Link to={`/garages/${g.id}`} className="fym-popup-title">
@@ -194,7 +256,7 @@ export const GarageMap: React.FC<GarageMapProps> = ({
                 )}
                 <div className="fym-popup-meta">
                   {g.average_rating
-                    ? `${g.average_rating.toFixed(1)} ★ (${g.review_count ?? 0})`
+                    ? `${g.average_rating.toFixed(1)} out of 5 (${g.review_count ?? 0})`
                     : 'No reviews yet'}
                 </div>
                 {g.address && <div className="fym-popup-meta">{g.address}</div>}

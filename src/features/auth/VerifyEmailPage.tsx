@@ -67,7 +67,7 @@ export const VerifyEmailPage: React.FC = () => {
               display: 'inline-block',
               padding: '10px 18px',
               backgroundColor: 'var(--ink)',
-              color: '#fff',
+              color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
             }}
@@ -99,7 +99,7 @@ export const VerifyEmailPage: React.FC = () => {
                 style={{
                   padding: '8px 14px',
                   backgroundColor: 'var(--ink)',
-                  color: '#fff',
+                  color: 'var(--on-dark)',
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 500,
                 }}

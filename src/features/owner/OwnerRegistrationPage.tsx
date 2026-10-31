@@ -314,7 +314,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 backgroundColor: 'var(--status-open-bg)',
                 color: 'var(--status-open-ink)',
                 borderRadius: 'var(--radius-sheet)',
-                border: '1px solid rgba(23, 84, 41, 0.2)',
+                border: '1px solid color-mix(in srgb, var(--status-open-ink) 20%, transparent)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -324,7 +324,7 @@ export const OwnerRegistrationPage: React.FC = () => {
             >
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>
-                  ✓ Workshop Approved &amp; Published
+                  Workshop approved and published
                 </h3>
                 <p style={{ fontSize: 'var(--step-small)', opacity: 0.9 }}>
                   Your workshop registration is verified and publicly discoverable to drivers.
@@ -335,7 +335,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 style={{
                   padding: '10px 20px',
                   backgroundColor: 'var(--status-open-ink)',
-                  color: '#ffffff',
+                  color: 'var(--on-dark)',
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 600,
                   fontSize: 'var(--step-small)',
@@ -353,7 +353,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 backgroundColor: 'var(--surface-raised)',
                 borderRadius: 'var(--radius-sheet)',
                 border: '1px solid var(--border)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 4px 16px var(--shadow-color)',
               }}
             >
               <div
@@ -396,7 +396,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                   gridTemplateColumns: 'repeat(3, 1fr)',
                   gap: '16px',
                   padding: '16px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--card)',
                   borderRadius: 'var(--radius-sm)',
                   border: '1px solid var(--border)',
                   fontSize: 'var(--step-small)',
@@ -427,7 +427,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 backgroundColor: 'var(--status-danger-bg)',
                 color: 'var(--status-danger-ink)',
                 borderRadius: 'var(--radius-sheet)',
-                border: '1px solid rgba(147, 30, 30, 0.2)',
+                border: '1px solid color-mix(in srgb, var(--status-danger-ink) 20%, transparent)',
                 marginBottom: '28px',
               }}
             >
@@ -456,7 +456,7 @@ export const OwnerRegistrationPage: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'space-between',
               marginBottom: '20px',
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--card)',
               border: '1px solid var(--border)',
               borderRadius: 'var(--radius-sheet)',
               padding: '16px 24px',
@@ -508,11 +508,11 @@ export const OwnerRegistrationPage: React.FC = () => {
                           : isCompleted
                           ? 'var(--accent)'
                           : 'var(--surface)',
-                        color: isActive || isCompleted ? '#ffffff' : 'var(--muted)',
+                        color: isActive || isCompleted ? 'var(--on-dark)' : 'var(--muted)',
                         transition: 'all 0.2s ease',
                       }}
                     >
-                      {isCompleted ? '✓' : s.step}
+                      {s.step}
                     </div>
                     <div>
                       <div
@@ -589,7 +589,7 @@ export const OwnerRegistrationPage: React.FC = () => {
             {currentStep === 1 && (
               <section
                 style={{
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--card)',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sheet)',
                   padding: '28px 32px',
@@ -695,7 +695,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                           border: 'none',
                         }}
                       >
-                        📍 Auto-Detect GPS
+                        Use my current location
                       </button>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -780,7 +780,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                     style={{
                       padding: '11px 28px',
                       backgroundColor: 'var(--ink)',
-                      color: '#ffffff',
+                      color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,
                       fontSize: '14px',
@@ -800,7 +800,7 @@ export const OwnerRegistrationPage: React.FC = () => {
             {currentStep === 2 && (
               <section
                 style={{
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--card)',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sheet)',
                   padding: '28px 32px',
@@ -970,7 +970,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                     style={{
                       padding: '11px 28px',
                       backgroundColor: 'var(--ink)',
-                      color: '#ffffff',
+                      color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,
                       fontSize: '14px',
@@ -990,7 +990,7 @@ export const OwnerRegistrationPage: React.FC = () => {
             {currentStep === 3 && (
               <section
                 style={{
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--card)',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sheet)',
                   padding: '28px 32px',
@@ -1032,14 +1032,14 @@ export const OwnerRegistrationPage: React.FC = () => {
                       padding: '6px 12px',
                       fontSize: '12px',
                       fontWeight: 500,
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--card)',
                       border: '1px solid var(--border)',
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
                       color: 'var(--ink)',
                     }}
                   >
-                    ⚡ Standard (Mon–Fri 8:00–18:00, Sat 9:00–16:00, Sun Closed)
+                    Standard (Mon–Fri 8:00–18:00, Sat 9:00–16:00, Sun Closed)
                   </button>
                   <button
                     type="button"
@@ -1048,14 +1048,14 @@ export const OwnerRegistrationPage: React.FC = () => {
                       padding: '6px 12px',
                       fontSize: '12px',
                       fontWeight: 500,
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--card)',
                       border: '1px solid var(--border)',
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
                       color: 'var(--ink)',
                     }}
                   >
-                    📋 Copy Monday Hours to All Weekdays
+                    Copy Monday hours to all weekdays
                   </button>
                 </div>
 
@@ -1098,7 +1098,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                         alignItems: 'center',
                         padding: '12px 18px',
                         borderBottom: idx < hours.length - 1 ? '1px solid var(--rule)' : 'none',
-                        backgroundColor: day.is_closed ? 'var(--surface-raised)' : '#ffffff',
+                        backgroundColor: day.is_closed ? 'var(--surface-raised)' : 'var(--card)',
                         transition: 'background-color 0.15s ease',
                       }}
                     >
@@ -1121,7 +1121,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                             fontSize: '12px',
                             fontWeight: 600,
                             cursor: 'pointer',
-                            border: day.is_closed ? '1px solid var(--border)' : '1px solid #b7dfbe',
+                            border: day.is_closed ? '1px solid var(--border)' : '1px solid color-mix(in srgb, var(--status-open-ink) 25%, transparent)',
                             backgroundColor: day.is_closed ? 'var(--surface)' : 'var(--status-open-bg)',
                             color: day.is_closed ? 'var(--muted)' : 'var(--status-open-ink)',
                             transition: 'all 0.15s ease',
@@ -1153,7 +1153,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                               border: '1px solid var(--border)',
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '14px',
-                              backgroundColor: '#ffffff',
+                              backgroundColor: 'var(--card)',
                               color: 'var(--ink)',
                             }}
                           />
@@ -1168,7 +1168,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                               border: '1px solid var(--border)',
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '14px',
-                              backgroundColor: '#ffffff',
+                              backgroundColor: 'var(--card)',
                               color: 'var(--ink)',
                             }}
                           />
@@ -1215,13 +1215,13 @@ export const OwnerRegistrationPage: React.FC = () => {
                     style={{
                       padding: '12px 32px',
                       backgroundColor: 'var(--ink)',
-                      color: '#ffffff',
+                      color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,
                       fontSize: '15px',
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
                       opacity: isSubmitting ? 0.7 : 1,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      boxShadow: '0 4px 12px var(--shadow-color)',
                     }}
                   >
                     {isSubmitting

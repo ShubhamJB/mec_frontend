@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { HexMark } from './HexMark';
 
 interface AppShellProps {
   title: string;
@@ -42,14 +43,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       >
         <div style={{ marginBottom: '24px', padding: '0 8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span
-              style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '2px',
-                backgroundColor: 'var(--accent)',
-              }}
-            />
+            <HexMark size={14} />
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '15px' }}>
               Find Your Mechanic
             </span>

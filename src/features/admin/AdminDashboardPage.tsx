@@ -71,7 +71,7 @@ export const AdminDashboardPage: React.FC = () => {
           gridTemplateColumns: 'repeat(3, 1fr)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--card)',
           marginBottom: '36px',
         }}
       >
@@ -142,7 +142,7 @@ export const AdminDashboardPage: React.FC = () => {
           gridTemplateColumns: 'repeat(5, 1fr)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--card)',
         }}
       >
         <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>

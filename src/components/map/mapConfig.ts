@@ -1,7 +1,27 @@
-export const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+interface TileSource {
+  url: string;
+  attribution: string;
+  maxZoom: number;
+  subdomains: string;
+}
 
-export const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+const OSM_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+const TILE_SOURCES: Record<string, TileSource> = {
+  osm: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: OSM_CREDIT,
+    maxZoom: 19,
+    subdomains: 'abc',
+  },
+};
+
+export const readToken = (name: string, fallback: string): string => {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+};
+
+export const getTileSource = (): TileSource => TILE_SOURCES[readToken('--map-tiles', 'osm')] ?? TILE_SOURCES.osm;
 
 export const DEFAULT_CENTER: [number, number] = [27.7172, 85.324];
 

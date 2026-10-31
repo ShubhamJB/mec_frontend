@@ -32,6 +32,7 @@ export const DiscoveryPage: React.FC = () => {
   const lng = searchParams.get('longitude');
 
   const [showMap, setShowMap] = useState(true);
+  const [searchInput, setSearchInput] = useState(search);
   const origin = useMemo(() => {
     if (!lat || !lng) return null;
     const parsedLat = parseFloat(lat);
@@ -121,6 +122,20 @@ export const DiscoveryPage: React.FC = () => {
       next.set('page', '1');
     }
     setSearchParams(next);
+  };
+
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    updateParam('search', searchInput.trim() || null);
+  };
+
+  const clearSearch = () => {
+    setSearchInput('');
+    updateParam('search', null);
   };
 
   const goToPage = (targetPage: number) => {
@@ -223,29 +238,66 @@ export const DiscoveryPage: React.FC = () => {
           </div>
         </div>
 
+        <form onSubmit={submitSearch} role="search" style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
+            >
+              <circle cx="7" cy="7" r="4.5" />
+              <path d="M10.5 10.5L14 14" />
+            </svg>
+            <input
+              type="search"
+              aria-label="Search workshops by name or area"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search by workshop name or area, e.g. Patan or Lalitpur"
+              style={{
+                width: '100%',
+                padding: '11px 12px 11px 36px',
+                fontSize: 'var(--step-body)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: 'var(--card)',
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              padding: '0 22px',
+              fontSize: 'var(--step-caption)',
+              fontWeight: 600,
+              color: 'var(--on-dark)',
+              backgroundColor: 'var(--ink)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
+            Search
+          </button>
+        </form>
+        <div style={{ minHeight: '24px', marginBottom: '16px', fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
+          {search && (
+            <span>
+              Showing results for <strong style={{ color: 'var(--ink)' }}>&ldquo;{search}&rdquo;</strong>.{' '}
+              <button type="button" onClick={clearSearch} style={{ fontSize: 'inherit', color: 'var(--accent)', textDecoration: 'underline' }}>
+                Clear search
+              </button>
+            </span>
+          )}
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '32px' }}>
           {/* Filters Sidebar */}
           <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Search Box */}
-            <div>
-              <label style={{ display: 'block', fontSize: 'var(--step-caption)', fontWeight: 500, marginBottom: '6px' }}>
-                Workshop Name / Keyword
-              </label>
-              <input
-                type="text"
-                value={search}
-                placeholder="e.g. Brake tuning, Apex..."
-                onChange={(e) => updateParam('search', e.target.value || null)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--surface)',
-                }}
-              />
-            </div>
-
             {/* Open Now filter */}
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: 'var(--step-caption)' }}>
@@ -348,7 +400,7 @@ export const DiscoveryPage: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '12px',
-                  backgroundColor: 'rgba(238, 236, 234, 0.6)',
+                  backgroundColor: 'color-mix(in srgb, var(--bg) 60%, transparent)',
                   backdropFilter: 'blur(2px)',
                   WebkitBackdropFilter: 'blur(2px)',
                   borderRadius: 'var(--radius-md)',
@@ -410,7 +462,7 @@ export const DiscoveryPage: React.FC = () => {
                   style={{
                     padding: '8px 16px',
                     backgroundColor: 'var(--ink)',
-                    color: '#fff',
+                    color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: 'var(--step-caption)',
                     fontWeight: 500,
@@ -431,7 +483,7 @@ export const DiscoveryPage: React.FC = () => {
               >
                 <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No garages match your criteria</h3>
                 <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
-                  Try relaxing your service or vehicle filters, or broadening your search terms.
+                  Try a different name or area, or relax your service and vehicle filters.
                 </p>
               </div>
             ) : (
@@ -468,7 +520,7 @@ export const DiscoveryPage: React.FC = () => {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
                         <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{garage.name}</h2>
-                        <AvailabilityBadge availability={garage.availability} />
+                        <AvailabilityBadge availability={garage.availability} showDetails />
                       </div>
 
                       <p style={{ color: 'var(--muted)', fontSize: 'var(--step-small)', marginBottom: '12px' }}>
@@ -484,7 +536,7 @@ export const DiscoveryPage: React.FC = () => {
                         <div>
                           {garage.average_rating ? (
                             <span>
-                              <strong>{garage.average_rating.toFixed(1)}</strong> ★ ({garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'})
+                              <strong>{garage.average_rating.toFixed(1)}</strong> out of 5 ({garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'})
                             </span>
                           ) : (
                             <span style={{ color: 'var(--muted)' }}>No reviews yet</span>
@@ -503,7 +555,7 @@ export const DiscoveryPage: React.FC = () => {
                         style={{
                           padding: '8px 16px',
                           backgroundColor: 'var(--ink)',
-                          color: '#fff',
+                          color: 'var(--on-dark)',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: 'var(--step-caption)',
                           fontWeight: 500,
@@ -584,7 +636,7 @@ export const DiscoveryPage: React.FC = () => {
                               height: '36px',
                               borderRadius: 'var(--radius-sm)',
                               backgroundColor: isActive ? 'var(--ink)' : 'var(--surface)',
-                              color: isActive ? '#ffffff' : 'var(--ink)',
+                              color: isActive ? 'var(--on-dark)' : 'var(--ink)',
                               border: '1px solid var(--border)',
                               fontWeight: isActive ? 600 : 500,
                               fontSize: 'var(--step-small)',

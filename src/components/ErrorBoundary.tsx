@@ -49,7 +49,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
           style={{
             padding: '8px 16px',
             backgroundColor: 'var(--ink)',
-            color: '#fff',
+            color: 'var(--on-dark)',
             borderRadius: 'var(--radius-sm)',
             cursor: 'pointer',
           }}

@@ -1,0 +1,420 @@
+.owner-staff-page {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 28px clamp(18px, 4vw, 52px) 48px;
+}
+
+.owner-staff-header,
+.owner-staff-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.owner-staff-header {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.owner-staff-header h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.owner-staff-header p,
+.owner-staff-modal-header p {
+  max-width: 560px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.owner-staff-primary,
+.owner-staff-secondary {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  background: var(--ink);
+  color: var(--on-dark, var(--card));
+  font: inherit;
+  cursor: pointer;
+}
+
+.owner-staff-primary:disabled,
+.owner-staff-secondary:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.owner-staff-secondary {
+  border-color: var(--rule);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.owner-staff-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 25px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.owner-staff-summary strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.owner-staff-section-heading {
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.owner-staff-section-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.owner-staff-section-heading > span,
+.owner-staff-muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.owner-staff-table-frame {
+  position: relative;
+  min-height: 150px;
+  overflow: hidden;
+  border: 1px solid var(--border, var(--rule));
+  border-radius: var(--radius-sm);
+}
+
+.owner-staff-table-wrap {
+  overflow-x: auto;
+  min-height: 150px;
+  transition: opacity 150ms ease;
+}
+
+.owner-staff-table-wrap.is-loading {
+  opacity: 0.32;
+  pointer-events: none;
+  user-select: none;
+}
+
+.owner-staff-table-loading {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: color-mix(in srgb, var(--bg) 48%, transparent);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.owner-staff-table-loading svg {
+  animation: owner-staff-spin 850ms linear infinite;
+}
+
+@keyframes owner-staff-spin {
+  to { transform: rotate(360deg); }
+}
+
+.owner-staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--step-caption, 14px);
+}
+
+.owner-staff-table th {
+  padding: 10px 14px;
+  background: var(--rule);
+  color: var(--ink-secondary, var(--muted));
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.owner-staff-table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.owner-staff-table tbody tr.is-inactive {
+  opacity: 0.68;
+}
+
+.owner-staff-table .owner-staff-name {
+  min-width: 170px;
+  font-weight: 500;
+}
+
+.owner-staff-status {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.owner-staff-status.is-active {
+  background: var(--status-open-bg);
+  color: var(--status-open-ink);
+}
+
+.owner-staff-status.is-inactive {
+  background: var(--status-unavail-bg);
+  color: var(--status-unavail-ink);
+}
+
+.owner-staff-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.owner-staff-action-button {
+  display: inline-flex;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border, var(--rule));
+  border-radius: 7px;
+  padding: 5px 10px;
+  background: var(--card);
+  color: var(--ink-secondary, var(--ink));
+  font: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.owner-staff-action-button:hover {
+  transform: translateY(-1px);
+}
+
+.owner-staff-action-button.is-edit:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+  color: var(--accent);
+}
+
+.owner-staff-action-button.is-deactivate {
+  border-color: color-mix(in srgb, var(--status-danger-ink) 35%, var(--border, var(--rule)));
+  color: var(--status-danger-ink);
+}
+
+.owner-staff-action-button.is-deactivate:hover {
+  border-color: var(--status-danger-ink);
+  background: var(--status-danger-bg);
+}
+
+.owner-staff-action-button.is-reactivate {
+  border-color: color-mix(in srgb, var(--status-open-ink) 35%, var(--border, var(--rule)));
+  color: var(--status-open-ink);
+}
+
+.owner-staff-action-button.is-reactivate:hover {
+  border-color: var(--status-open-ink);
+  background: var(--status-open-bg);
+}
+
+.owner-staff-empty {
+  display: grid;
+  justify-items: start;
+  gap: 9px;
+  border: 1px solid var(--border, var(--rule));
+  border-radius: var(--radius-sm);
+  padding: 24px;
+}
+
+.owner-staff-empty p {
+  margin: 0 0 5px;
+  color: var(--muted);
+}
+
+.owner-staff-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 22px;
+  background: rgb(15 20 24 / 54%);
+  opacity: 0;
+  transition: opacity 480ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.owner-staff-backdrop.is-open {
+  opacity: 1;
+}
+
+.owner-staff-backdrop.is-closing {
+  opacity: 0;
+}
+
+.owner-staff-modal {
+  width: min(100%, 520px);
+  border: 1px solid var(--border, var(--rule));
+  border-radius: var(--radius-md, 10px);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
+  opacity: 0;
+  transform: translateY(22px) scale(0.97);
+  transition:
+    opacity 460ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 520ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.owner-staff-modal.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.owner-staff-modal.is-closing {
+  opacity: 0;
+  transform: translateY(12px) scale(0.99);
+  pointer-events: none;
+}
+
+.owner-staff-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px 18px;
+}
+
+.owner-staff-modal-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.owner-staff-modal-header p {
+  font-size: 14px;
+}
+
+.owner-staff-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.owner-staff-form {
+  display: grid;
+  gap: 16px;
+  padding: 22px 24px 24px;
+}
+
+.owner-staff-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.owner-staff-form input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.owner-staff-form input:focus-visible,
+.owner-staff-primary:focus-visible,
+.owner-staff-secondary:focus-visible,
+.owner-staff-action-button:focus-visible,
+.owner-staff-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.owner-staff-form label > span:last-child {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.owner-staff-form .owner-staff-optional {
+  display: inline;
+  margin-left: 4px;
+}
+
+.owner-staff-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .owner-staff-header {
+    align-items: stretch;
+  }
+
+  .owner-staff-header > button {
+    align-self: flex-start;
+  }
+
+  .owner-staff-section-heading > span {
+    text-align: right;
+  }
+
+  .owner-staff-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .owner-staff-modal {
+    width: 100%;
+    border-radius: var(--radius-md, 10px) var(--radius-md, 10px) 0 0;
+  }
+
+  .owner-staff-modal.is-open {
+    transform: translateY(0);
+  }
+
+  .owner-staff-modal.is-closing {
+    transform: translateY(20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-staff-backdrop,
+  .owner-staff-modal {
+    transition-duration: 1ms;
+  }
+}

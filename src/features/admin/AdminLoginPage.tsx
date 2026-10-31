@@ -92,7 +92,7 @@ export const AdminLoginPage: React.FC = () => {
           backgroundColor: 'var(--app-sheet)',
           borderRadius: 'var(--radius-sheet)',
           border: '1px solid var(--app-sheet-edge)',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0 8px 30px var(--shadow-color)',
           padding: '40px 32px',
         }}
       >
@@ -300,7 +300,7 @@ export const AdminLoginPage: React.FC = () => {
               marginTop: '8px',
               padding: '11px',
               backgroundColor: 'var(--ink)',
-              color: '#ffffff',
+              color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
               fontSize: 'var(--step-caption)',

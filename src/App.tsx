@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthContext';
 import { RoleGuard } from './auth/RoleGuard';
 
 import { LandingPage } from './features/discovery/LandingPage';
+import { Landing3DPage } from './features/landing3d/Landing3DPage';
 import { DiscoveryPage } from './features/discovery/DiscoveryPage';
 import { GarageProfilePage } from './features/garage-profile/GarageProfilePage';
 import { LoginPage } from './features/auth/LoginPage';
@@ -14,20 +15,26 @@ import { NotificationsPage } from './features/notifications/NotificationsPage';
 import { OwnerDashboardPage } from './features/owner/OwnerDashboardPage';
 import { OwnerHoursPage } from './features/owner/OwnerHoursPage';
 import { OwnerRegistrationPage } from './features/owner/OwnerRegistrationPage';
+import { OwnerPhotosPage } from './features/owner/OwnerPhotosPage';
+import { OwnerServicesPage } from './features/owner/OwnerServicesPage';
+import { OwnerStaffPage } from './features/owner/OwnerStaffPage';
 
 import { AdminDashboardPage } from './features/admin/AdminDashboardPage';
 import { AdminRegistrationsPage } from './features/admin/AdminRegistrationsPage';
 import { AdminLoginPage } from './features/admin/AdminLoginPage';
 import { GlobalLoadingSpinner } from './components/GlobalLoadingSpinner';
+import { ToastProvider } from './components/ToastProvider';
 
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <GlobalLoadingSpinner />
-        <Routes>
+      <ToastProvider>
+        <BrowserRouter>
+          <GlobalLoadingSpinner />
+          <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Landing3DPage />} />
+          <Route path="/find" element={<LandingPage />} />
           <Route path="/garages" element={<DiscoveryPage />} />
           <Route path="/garages/:id" element={<GarageProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -83,6 +90,30 @@ export const App: React.FC = () => {
               </RoleGuard>
             }
           />
+          <Route
+            path="/owner/photos"
+            element={
+              <RoleGuard allowedRoles={['GARAGE_OWNER']}>
+                <OwnerPhotosPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/owner/services"
+            element={
+              <RoleGuard allowedRoles={['GARAGE_OWNER']}>
+                <OwnerServicesPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/owner/staff"
+            element={
+              <RoleGuard allowedRoles={['GARAGE_OWNER']}>
+                <OwnerStaffPage />
+              </RoleGuard>
+            }
+          />
           <Route path="/owner/*" element={<Navigate to="/owner" replace />} />
 
           {/* Admin App Routes */}
@@ -113,8 +144,9 @@ export const App: React.FC = () => {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 };

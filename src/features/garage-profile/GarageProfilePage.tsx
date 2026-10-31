@@ -143,7 +143,7 @@ export const GarageProfilePage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: 'var(--step-caption)' }}>
               {garage.average_rating ? (
                 <span>
-                  <strong>{garage.average_rating.toFixed(1)}</strong> ★ ({garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'})
+                  <strong>{garage.average_rating.toFixed(1)}</strong> out of 5 ({garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'})
                 </span>
               ) : (
                 <span style={{ color: 'var(--muted)' }}>No customer reviews yet</span>
@@ -159,7 +159,7 @@ export const GarageProfilePage: React.FC = () => {
               }}
               style={{
                 backgroundColor: 'var(--ink)',
-                color: '#fff',
+                color: 'var(--on-dark)',
                 padding: '12px 28px',
                 borderRadius: 'var(--radius-sm)',
                 fontWeight: 600,
@@ -377,7 +377,7 @@ export const GarageProfilePage: React.FC = () => {
                     style={{
                       padding: '8px 16px',
                       backgroundColor: 'var(--ink)',
-                      color: '#fff',
+                      color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 500,
                     }}
@@ -403,7 +403,7 @@ export const GarageProfilePage: React.FC = () => {
                           {rev.customer?.display_name || 'Customer'}
                         </span>
                         <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
-                          {'★'.repeat(rev.rating)}
+                          {rev.rating} out of 5
                         </span>
                       </div>
                       {rev.comment && (
@@ -457,7 +457,7 @@ export const GarageProfilePage: React.FC = () => {
                     <span>{dayName}</span>
                     <span className="tabular-nums" style={{ color: schedule?.is_closed ? 'var(--muted)' : 'var(--ink)' }}>
                       {schedule && !schedule.is_closed && schedule.opening_time && schedule.closing_time
-                        ? `${schedule.opening_time} - ${schedule.closing_time}`
+                        ? `${schedule.opening_time.slice(0, 5)} - ${schedule.closing_time.slice(0, 5)}`
                         : 'Closed'}
                     </span>
                   </div>

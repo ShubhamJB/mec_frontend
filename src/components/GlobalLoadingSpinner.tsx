@@ -58,7 +58,7 @@ export const GlobalLoadingSpinner: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '14px',
-          backgroundColor: 'rgba(238, 236, 234, 0.45)',
+          backgroundColor: 'color-mix(in srgb, var(--bg) 45%, transparent)',
           backdropFilter: 'blur(3px)',
           WebkitBackdropFilter: 'blur(3px)',
           animation: 'fym-fade 0.15s ease-out',

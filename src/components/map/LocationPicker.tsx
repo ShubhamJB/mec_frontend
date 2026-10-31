@@ -3,7 +3,8 @@ import L from 'leaflet';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
-import { DEFAULT_CENTER, DEFAULT_ZOOM, TILE_ATTRIBUTION, TILE_URL, isValidCoordinate } from './mapConfig';
+import { DEFAULT_CENTER, DEFAULT_ZOOM, getTileSource, isValidCoordinate } from './mapConfig';
+import { createHexIcon } from './mapIcons';
 
 interface LocationPickerProps {
   latitude: number | null;
@@ -12,12 +13,7 @@ interface LocationPickerProps {
   height?: number;
 }
 
-const pickerIcon = L.divIcon({
-  className: 'fym-pin-wrap',
-  html: '<span class="fym-pin fym-pin--picker"></span>',
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
-});
+const pickerIcon = createHexIcon({ variant: 'picker' });
 
 const ClickToPlace: React.FC<{ onChange: LocationPickerProps['onChange'] }> = ({ onChange }) => {
   useMapEvents({
@@ -46,6 +42,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   onChange,
   height = 300,
 }) => {
+  const tiles = useMemo(() => getTileSource(), []);
   const position = useMemo<[number, number] | null>(
     () => (isValidCoordinate(latitude, longitude) ? [latitude as number, longitude as number] : null),
     [latitude, longitude]
@@ -60,7 +57,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           scrollWheelZoom={false}
           style={{ height: '100%', width: '100%' }}
         >
-          <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={19} />
+          <TileLayer
+            url={tiles.url}
+            attribution={tiles.attribution}
+            maxZoom={tiles.maxZoom}
+            subdomains={tiles.subdomains}
+          />
           <ClickToPlace onChange={onChange} />
           <KeepPinInView position={position} />
           {position && (

@@ -260,7 +260,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '10px',
-                    backgroundColor: 'rgba(238, 236, 234, 0.55)',
+                    backgroundColor: 'color-mix(in srgb, var(--bg) 55%, transparent)',
                     backdropFilter: 'blur(2px)',
                     WebkitBackdropFilter: 'blur(2px)',
                   }}
@@ -461,7 +461,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                             height: '34px',
                             borderRadius: 'var(--radius-sm)',
                             backgroundColor: isActive ? 'var(--ink)' : 'var(--surface)',
-                            color: isActive ? '#ffffff' : 'var(--ink)',
+                            color: isActive ? 'var(--on-dark)' : 'var(--ink)',
                             border: '1px solid var(--border)',
                             fontWeight: isActive ? 600 : 500,
                             fontSize: 'var(--step-small)',
@@ -582,7 +582,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                         flex: 1,
                         padding: '8px',
                         backgroundColor: 'var(--accent)',
-                        color: '#fff',
+                        color: 'var(--on-dark)',
                         borderRadius: 'var(--radius-sm)',
                         fontWeight: 500,
                         fontSize: 'var(--step-small)',
@@ -599,7 +599,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                         flex: 1,
                         padding: '8px',
                         backgroundColor: 'var(--status-danger-ink)',
-                        color: '#fff',
+                        color: 'var(--on-dark)',
                         borderRadius: 'var(--radius-sm)',
                         fontWeight: 500,
                         fontSize: 'var(--step-small)',
@@ -622,7 +622,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                     fontWeight: 500,
                   }}
                 >
-                  ✓ This workshop registration has been approved and is publicly discoverable.
+                  This workshop registration has been approved and is publicly discoverable.
                 </div>
               ) : (
                 <div
@@ -634,7 +634,7 @@ export const AdminRegistrationsPage: React.FC = () => {
                     fontSize: 'var(--step-small)',
                   }}
                 >
-                  ✕ This registration submission was rejected.
+                  This registration submission was rejected.
                 </div>
               )}
             </div>

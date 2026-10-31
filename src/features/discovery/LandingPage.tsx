@@ -58,13 +58,12 @@ export const LandingPage: React.FC = () => {
     <PublicLayout>
       <div style={{ maxWidth: '980px', margin: '0 auto', padding: '64px 24px 80px' }}>
         {/* Quiet-instrument style hero */}
-        <section style={{ maxWidth: '560px', marginBottom: '64px' }}>
+        <section style={{ maxWidth: 'var(--hero-measure)', marginBottom: '64px' }}>
           <h1
+            className="fym-display"
             style={{
-              fontSize: 'var(--step-title)',
+              fontSize: 'var(--step-hero)',
               marginBottom: '16px',
-              fontWeight: 500,
-              letterSpacing: '-0.02em',
             }}
           >
             Find a trusted mechanic nearby, right when you need one.
@@ -87,7 +86,7 @@ export const LandingPage: React.FC = () => {
               disabled={loadingLocation}
               style={{
                 backgroundColor: 'var(--ink)',
-                color: '#fff',
+                color: 'var(--on-dark)',
                 padding: '12px 20px',
                 borderRadius: 'var(--radius-sm)',
                 fontWeight: 500,
@@ -199,7 +198,7 @@ export const LandingPage: React.FC = () => {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <h3 style={{ fontSize: '18px' }}>{garage.name}</h3>
-                      <AvailabilityBadge availability={garage.availability} />
+                      <AvailabilityBadge availability={garage.availability} showDetails />
                     </div>
                     {garage.distance_km !== undefined && garage.distance_km !== null && (
                       <p className="tabular-nums" style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '8px' }}>

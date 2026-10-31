@@ -111,7 +111,7 @@ export const NotificationsPage: React.FC = () => {
                   padding: '16px 20px',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: n.is_read ? 'var(--surface)' : '#fff',
+                  backgroundColor: n.is_read ? 'var(--surface)' : 'var(--card)',
                   cursor: n.is_read ? 'default' : 'pointer',
                   display: 'flex',
                   justifyContent: 'space-between',

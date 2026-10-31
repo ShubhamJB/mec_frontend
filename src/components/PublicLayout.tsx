@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { HexMark } from './HexMark';
 
 export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -22,15 +23,7 @@ export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children
         }}
       >
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span
-            style={{
-              width: '12px',
-              height: '12px',
-              background: 'var(--accent)',
-              display: 'inline-block',
-              borderRadius: '2px',
-            }}
-          />
+          <HexMark size={16} />
           <strong style={{ fontFamily: 'var(--font-display)', fontSize: '18px', letterSpacing: '-0.02em' }}>
             Find Your Mechanic
           </strong>
@@ -102,7 +95,9 @@ export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children
         }}
       >
         <div>Find Your Mechanic &bull; Verified Workshop &amp; Garage Discovery</div>
-        <div>&copy; {new Date().getFullYear()} Find Your Mechanic</div>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <span>&copy; {new Date().getFullYear()} Find Your Mechanic</span>
+        </div>
       </footer>
     </div>
   );

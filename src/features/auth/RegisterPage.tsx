@@ -57,7 +57,7 @@ export const RegisterPage: React.FC = () => {
               display: 'inline-block',
               padding: '8px 16px',
               backgroundColor: 'var(--ink)',
-              color: '#fff',
+              color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
             }}
@@ -88,7 +88,7 @@ export const RegisterPage: React.FC = () => {
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--border)',
               backgroundColor: role === 'customer' ? 'var(--ink)' : 'var(--surface)',
-              color: role === 'customer' ? '#fff' : 'var(--ink)',
+              color: role === 'customer' ? 'var(--on-dark)' : 'var(--ink)',
               fontWeight: role === 'customer' ? 600 : 400,
               fontSize: 'var(--step-caption)',
             }}
@@ -104,7 +104,7 @@ export const RegisterPage: React.FC = () => {
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--border)',
               backgroundColor: role === 'owner' ? 'var(--ink)' : 'var(--surface)',
-              color: role === 'owner' ? '#fff' : 'var(--ink)',
+              color: role === 'owner' ? 'var(--on-dark)' : 'var(--ink)',
               fontWeight: role === 'owner' ? 600 : 400,
               fontSize: 'var(--step-caption)',
             }}
@@ -160,7 +160,7 @@ export const RegisterPage: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. maya@example.com"
+              placeholder="e.g. maya@yourmail.com"
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -199,7 +199,7 @@ export const RegisterPage: React.FC = () => {
               marginTop: '8px',
               padding: '10px',
               backgroundColor: 'var(--ink)',
-              color: '#fff',
+              color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
             }}

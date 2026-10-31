@@ -22,6 +22,38 @@ export const AvailabilityBadge: React.FC<{
     text = 'Temporarily Unavailable';
   }
 
+  let detail: string | null = isTempUnavailable ? availability.message || null : null;
+  if (!detail && showDetails && availability.next_status_change) {
+    try {
+      const nextChange = new Date(availability.next_status_change);
+      const nextTime = new Intl.DateTimeFormat(undefined, {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: availability.timezone,
+      }).format(nextChange);
+
+      if (availability.status === 'OPEN') {
+        detail = `Closes at ${nextTime}`;
+      } else if (availability.status === 'CLOSED') {
+        const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          timeZone: availability.timezone,
+        });
+        const isOpeningToday = dateFormatter.format(new Date(availability.local_time))
+          === dateFormatter.format(nextChange);
+        const weekday = new Intl.DateTimeFormat(undefined, {
+          weekday: 'short',
+          timeZone: availability.timezone,
+        }).format(nextChange);
+        detail = isOpeningToday ? `Opens at ${nextTime}` : `Opens ${weekday} at ${nextTime}`;
+      }
+    } catch {
+      detail = null;
+    }
+  }
+
   return (
     <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px' }}>
       <span
@@ -48,9 +80,9 @@ export const AvailabilityBadge: React.FC<{
         />
         {text}
       </span>
-      {showDetails && availability.message && isTempUnavailable && (
+      {detail && (
         <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-          {availability.message}
+          {detail}
         </span>
       )}
     </div>

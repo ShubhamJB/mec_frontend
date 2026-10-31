@@ -26,7 +26,7 @@ export const LoginPage: React.FC = () => {
     if (currentUser.role === 'GARAGE_OWNER') {
       return <Navigate to="/owner" replace />;
     }
-    return <Navigate to="/" replace />;
+    return <Navigate to="/find" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +60,7 @@ export const LoginPage: React.FC = () => {
       } else if (user.role === 'GARAGE_OWNER') {
         navigate('/owner');
       } else {
-        navigate('/');
+        navigate('/find');
       }
     } catch (err: unknown) {
       setAccessToken(null);
@@ -171,7 +171,7 @@ export const LoginPage: React.FC = () => {
               marginTop: '8px',
               padding: '10px',
               backgroundColor: 'var(--ink)',
-              color: '#fff',
+              color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
             }}

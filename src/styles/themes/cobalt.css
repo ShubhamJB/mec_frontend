@@ -1,0 +1,64 @@
+:root {
+  --bg: #eef0f3;
+  --surface: #e2e5ea;
+  --surface-raised: #f6f7f9;
+  --card: #ffffff;
+  --ink: #0b0c0e;
+  --ink-secondary: #2f343c;
+  --muted: #5d6470;
+  --rule: #dfe3e9;
+  --border: #cdd3db;
+
+  --accent: #1f2de6;
+  --accent-ink: #ffffff;
+  --accent-light: #e5e7fc;
+  --accent-strong: #1520b8;
+  --on-dark: #ffffff;
+  --field: var(--accent);
+  --field-ink: var(--accent-ink);
+
+  --app-chrome: #f3f4f8;
+  --app-sheet: #f3f4f8;
+  --app-sheet-edge: transparent;
+  --app-active: #e4e7ee;
+
+  --status-open-bg: #dcf3e4;
+  --status-open-ink: #0f5130;
+  --status-closed-bg: #e6e9ee;
+  --status-closed-ink: #4a515d;
+  --status-unavail-bg: #fdf0d9;
+  --status-unavail-ink: #7a4300;
+  --status-danger-bg: #fbe5e7;
+  --status-danger-ink: #9a1c28;
+
+  --shadow-color: rgba(11, 12, 14, 0.07);
+  --overlay: rgba(238, 240, 243, 0.65);
+
+  --map-tiles: osm;
+  --map-tile-filter: none;
+  --map-route: #1f2de6;
+  --map-route-casing: #ffffff;
+  --map-alt-route: #8a93a3;
+
+  --font-display: 'Stack Sans Headline', 'Stack Sans Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Stack Sans Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: var(--font-sans);
+  --weight-display: 300;
+  --weight-heading: 600;
+  --tracking-display: -0.022em;
+
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-caption: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --step-body: clamp(1rem, 0.96rem + 0.15vw, 1.0625rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-title: clamp(1.625rem, 1.3rem + 1vw, 2.5rem);
+  --step-head: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+
+  --step-hero: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  --hero-measure: 820px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-sheet: 0px;
+}
