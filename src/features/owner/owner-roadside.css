@@ -1,0 +1,161 @@
+.owner-roadside-page {
+  width: min(100%, 1420px);
+  margin: 0 auto;
+  padding: 28px clamp(18px, 3vw, 44px) 48px;
+}
+
+.owner-roadside-header,
+.owner-roadside-overview,
+.owner-roadside-section-heading,
+.owner-roadside-settings-heading,
+.owner-roadside-switch-row,
+.owner-roadside-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.owner-roadside-header { align-items: flex-end; gap: 20px; margin-bottom: 22px; }
+.owner-roadside-header h1 { margin-top: 7px; font-size: 27px; font-weight: 620; letter-spacing: -0.035em; }
+.owner-roadside-header p { margin-top: 7px; color: var(--muted); font-size: 14px; }
+.owner-roadside-eyebrow { display: flex; align-items: center; gap: 7px; color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+
+.owner-roadside-refresh,
+.owner-roadside-action,
+.owner-roadside-filter button,
+.owner-roadside-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 35px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 11px;
+  background: var(--card);
+  color: var(--ink-secondary, var(--ink));
+  font: inherit;
+  font-size: 12px;
+  font-weight: 560;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+.owner-roadside-refresh:hover,
+.owner-roadside-action:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+.owner-roadside-refresh:disabled,
+.owner-roadside-action:disabled { cursor: wait; opacity: .55; }
+.owner-roadside-refresh .is-spinning { animation: roadside-spin .8s linear infinite; }
+@keyframes roadside-spin { to { transform: rotate(360deg); } }
+
+.owner-roadside-overview {
+  min-height: 82px;
+  gap: 20px;
+  margin-bottom: 23px;
+  padding: 15px 19px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--card));
+}
+.owner-roadside-overview > div { display: flex; align-items: baseline; gap: 14px; }
+.owner-roadside-overview-label { color: var(--muted); font-size: 13px; }
+.owner-roadside-overview strong { font-variant-numeric: tabular-nums; font-size: 28px; font-weight: 620; letter-spacing: -.04em; }
+.owner-roadside-live { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.owner-roadside-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.owner-roadside-live.is-on { color: var(--status-open-ink); }
+.owner-roadside-live.is-on i { background: var(--status-open-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-open-ink) 12%, transparent); }
+
+.owner-roadside-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; align-items: start; gap: 21px; }
+.owner-roadside-queue, .owner-roadside-settings { min-width: 0; }
+.owner-roadside-section-heading { align-items: flex-end; gap: 16px; margin-bottom: 12px; }
+.owner-roadside-section-heading h2, .owner-roadside-settings-heading h2 { font-size: 16px; font-weight: 620; letter-spacing: -.02em; }
+.owner-roadside-section-heading p, .owner-roadside-settings-heading p { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.owner-roadside-filter { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+.owner-roadside-filter button { min-height: 27px; border-color: transparent; padding: 4px 10px; background: transparent; font-size: 11px; }
+.owner-roadside-filter button.is-selected { border-color: var(--border); background: var(--card); color: var(--ink); box-shadow: 0 1px 2px color-mix(in srgb, var(--ink) 8%, transparent); }
+
+.owner-roadside-table-frame { position: relative; min-height: 230px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.owner-roadside-table-wrap { min-height: 230px; overflow: auto; transition: opacity 160ms ease; }
+.owner-roadside-table-wrap.is-loading { pointer-events: none; user-select: none; opacity: .34; }
+.owner-roadside-table-loading { position: absolute; z-index: 2; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: color-mix(in srgb, var(--bg) 52%, transparent); color: var(--ink-secondary, var(--ink)); font-size: 12px; }
+.owner-roadside-spinner { width: 27px; height: 27px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: roadside-spin .8s linear infinite; }
+.owner-roadside-table { width: 100%; min-width: 960px; border-collapse: collapse; text-align: left; font-size: 12px; }
+.owner-roadside-table th { padding: 10px 12px; background: color-mix(in srgb, var(--rule) 70%, var(--card)); color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; }
+.owner-roadside-table td { padding: 12px; border-top: 1px solid var(--rule); vertical-align: middle; }
+.owner-roadside-table tbody tr { transition: background-color 120ms ease; }
+.owner-roadside-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 3%, var(--card)); }
+.owner-roadside-code { display: block; font-size: 12px; font-variant-numeric: tabular-nums; }
+.owner-roadside-row-sub, .owner-roadside-problem span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+.owner-roadside-problem { max-width: 250px; }
+.owner-roadside-problem strong { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-weight: 550; line-height: 1.4; }
+.owner-roadside-location, .owner-roadside-phone { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.owner-roadside-location { color: var(--ink-secondary, var(--ink)); font-variant-numeric: tabular-nums; }
+.owner-roadside-phone { margin-top: 5px; color: var(--accent); font-size: 10px; font-weight: 600; }
+.owner-roadside-date { color: var(--muted); white-space: nowrap; font-size: 11px; }
+.owner-roadside-status { display: inline-flex; align-items: center; min-height: 23px; border: 1px solid transparent; border-radius: 6px; padding: 3px 7px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.owner-roadside-status.is-pending { border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); background: color-mix(in srgb, var(--accent) 8%, var(--card)); color: var(--accent); }
+.owner-roadside-status.is-active { background: var(--status-unavail-bg); color: var(--status-unavail-ink); }
+.owner-roadside-status.is-complete { background: var(--status-open-bg); color: var(--status-open-ink); }
+.owner-roadside-status.is-closed { background: var(--rule); color: var(--muted); }
+.owner-roadside-row-actions { justify-content: flex-start; gap: 5px; white-space: nowrap; }
+.owner-roadside-action { min-height: 29px; padding: 5px 8px; font-size: 10px; }
+.owner-roadside-action.is-primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink, white); }
+.owner-roadside-action.is-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 88%, black); color: var(--accent-ink, white); }
+.owner-roadside-muted { color: var(--muted); font-size: 10px; }
+
+.owner-roadside-empty { display: flex; min-height: 230px; flex-direction: column; align-items: center; justify-content: center; padding: 25px; text-align: center; }
+.owner-roadside-empty-mark, .owner-roadside-settings-mark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); border-radius: 9px; color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--card)); }
+.owner-roadside-empty strong { margin-top: 12px; font-size: 13px; font-weight: 600; }
+.owner-roadside-empty p { max-width: 300px; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+.owner-roadside-settings { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--card); }
+.owner-roadside-settings-heading { justify-content: flex-start; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid var(--rule); }
+.owner-roadside-settings-mark { flex: 0 0 auto; }
+.owner-roadside-form { display: grid; gap: 15px; padding-top: 14px; }
+.owner-roadside-switch-row { align-items: flex-start; gap: 14px; }
+.owner-roadside-switch-row span { display: grid; gap: 3px; }
+.owner-roadside-switch-row strong { font-size: 12px; font-weight: 580; }
+.owner-roadside-switch-row small, .owner-roadside-field small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+.owner-roadside-switch-row input { width: 35px; height: 19px; flex: 0 0 auto; margin-top: 1px; accent-color: var(--accent); }
+.owner-roadside-switch-row input:disabled { opacity: .45; }
+.owner-roadside-field { display: grid; gap: 6px; color: var(--ink-secondary, var(--ink)); font-size: 11px; font-weight: 580; }
+.owner-roadside-field > span { margin-left: 4px; color: var(--muted); font-weight: 400; }
+.owner-roadside-field input, .owner-roadside-field select, .owner-roadside-field textarea { width: 100%; min-height: 36px; border: 1px solid var(--border); border-radius: 7px; padding: 8px 9px; background: var(--bg); font: inherit; font-size: 12px; }
+.owner-roadside-field textarea { resize: vertical; line-height: 1.4; }
+.owner-roadside-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.owner-roadside-save { width: 100%; min-height: 38px; border-color: var(--accent); background: var(--accent); color: var(--accent-ink, white); font-size: 11px; }
+.owner-roadside-save:hover:not(:disabled) { filter: brightness(.96); }
+.owner-roadside-save:disabled { cursor: wait; opacity: .65; }
+.owner-roadside-privacy { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 13px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.owner-roadside-privacy svg { flex: 0 0 auto; margin-top: 1px; color: var(--accent); }
+.owner-roadside-catalog-note { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 12px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.owner-roadside-catalog-note a { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 1160px) {
+  .owner-roadside-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; }
+  .owner-roadside-page { padding-inline: 20px; }
+}
+
+@media (max-width: 900px) {
+  .owner-roadside-layout { grid-template-columns: 1fr; }
+  .owner-roadside-settings { order: -1; }
+  .owner-roadside-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .owner-roadside-switch-row, .owner-roadside-save { grid-column: 1 / -1; }
+  .owner-roadside-privacy { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .owner-roadside-page { padding: 20px 14px 36px; }
+  .owner-roadside-header { align-items: flex-start; flex-direction: column; }
+  .owner-roadside-header h1 { font-size: 24px; }
+  .owner-roadside-refresh { align-self: flex-start; }
+  .owner-roadside-overview { align-items: flex-start; flex-direction: column; gap: 8px; padding: 13px 14px; }
+  .owner-roadside-overview > div { justify-content: space-between; width: 100%; }
+  .owner-roadside-section-heading { align-items: flex-start; flex-direction: column; }
+  .owner-roadside-form { grid-template-columns: 1fr; }
+  .owner-roadside-switch-row, .owner-roadside-save, .owner-roadside-privacy { grid-column: auto; }
+  .owner-roadside-field-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-roadside-refresh, .owner-roadside-action, .owner-roadside-table tbody tr, .owner-roadside-table-wrap { transition-duration: 1ms; }
+  .owner-roadside-spinner, .owner-roadside-refresh .is-spinning { animation-duration: 1ms; }
+}

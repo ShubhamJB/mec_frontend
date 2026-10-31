@@ -147,6 +147,56 @@ export interface GarageStaffItem {
   updated_at: string;
 }
 
+export interface RoadsideCapability {
+  id: string;
+  garage_id: string;
+  enabled: boolean;
+  is_available: boolean;
+  service_radius_km: number;
+  availability_note: string | null;
+  callback_phone: string | null;
+  response_minutes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type RoadsideRequestStatus =
+  | 'PENDING' | 'ACCEPTED' | 'CONTACTED' | 'CONFIRMED' | 'IN_PROGRESS'
+  | 'COMPLETED' | 'DECLINED' | 'EXPIRED' | 'CANCELLED' | 'UNABLE_TO_SERVE';
+
+export interface RoadsideRequestEvent {
+  from_status: RoadsideRequestStatus | null;
+  to_status: RoadsideRequestStatus;
+  created_at: string;
+  safe_metadata: Record<string, string> | null;
+}
+
+export interface RoadsideRequestItem {
+  id: string;
+  request_code: string;
+  garage_id: string;
+  garage_name: string;
+  customer_id: string;
+  status: RoadsideRequestStatus;
+  vehicle_type_id: string;
+  service_id: string;
+  problem_description: string;
+  coarse_latitude: number;
+  coarse_longitude: number;
+  exact_latitude: number | null;
+  exact_longitude: number | null;
+  address: string | null;
+  contact_phone: string | null;
+  quote_amount: string | null;
+  quote_currency: string | null;
+  eta_minutes: number | null;
+  decline_reason: string | null;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+  events: RoadsideRequestEvent[];
+}
+
 export interface AdminDashboardCounts {
   total_users: number;
   total_customers: number;

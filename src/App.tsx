@@ -18,6 +18,7 @@ import { OwnerRegistrationPage } from './features/owner/OwnerRegistrationPage';
 import { OwnerPhotosPage } from './features/owner/OwnerPhotosPage';
 import { OwnerServicesPage } from './features/owner/OwnerServicesPage';
 import { OwnerStaffPage } from './features/owner/OwnerStaffPage';
+import { OwnerRoadsidePage } from './features/owner/OwnerRoadsidePage';
 
 import { AdminDashboardPage } from './features/admin/AdminDashboardPage';
 import { AdminRegistrationsPage } from './features/admin/AdminRegistrationsPage';
@@ -111,6 +112,14 @@ export const App: React.FC = () => {
             element={
               <RoleGuard allowedRoles={['GARAGE_OWNER']}>
                 <OwnerStaffPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/owner/roadside"
+            element={
+              <RoleGuard allowedRoles={['GARAGE_OWNER']}>
+                <OwnerRoadsidePage />
               </RoleGuard>
             }
           />

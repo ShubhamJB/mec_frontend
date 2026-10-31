@@ -3,6 +3,7 @@ export const ownerNavItems = [
   { label: 'Photos', path: '/owner/photos' },
   { label: 'Services & Vehicles', path: '/owner/services' },
   { label: 'Staff', path: '/owner/staff' },
+  { label: 'Roadside assistance', path: '/owner/roadside' },
   { label: 'Weekly Schedule', path: '/owner/hours' },
   { label: 'Registration Status', path: '/owner/registration' },
   { label: 'Browse garages', path: '/garages' },
