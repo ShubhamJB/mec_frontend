@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Check, Clock3, MapPin, Phone, RefreshCw, ShieldCheck, Siren, X } from 'lucide-react';
 import { ApiError, apiClient } from '../../api/client';
@@ -58,12 +58,16 @@ export const OwnerRoadsidePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [capability, setCapability] = useState<CapabilityDraft>(blankCapability);
+  const [savedCapability, setSavedCapability] = useState<CapabilityDraft>(blankCapability);
   const [requests, setRequests] = useState<RoadsideRequestItem[]>([]);
   const [garage, setGarage] = useState<OwnerGarageBasics | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'OPEN' | 'ALL'>('OPEN');
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [settingsModalMounted, setSettingsModalMounted] = useState(false);
+  const settingsCloseTimer = useRef<number | null>(null);
 
   const load = useCallback(async (quiet = false) => {
     if (!quiet) setLoading(true);
@@ -73,14 +77,16 @@ export const OwnerRoadsidePage: React.FC = () => {
         apiClient<RoadsideRequestItem[]>('/owner/roadside/requests', { skipGlobalLoader: true }),
         apiClient<OwnerGarageBasics>('/owner/garage', { skipGlobalLoader: true }),
       ]);
-      setCapability({
+      const saved = {
         enabled: capabilityResult.enabled,
         is_available: capabilityResult.is_available,
         service_radius_km: capabilityResult.service_radius_km,
         availability_note: capabilityResult.availability_note || '',
         callback_phone: capabilityResult.callback_phone || '',
         response_minutes: capabilityResult.response_minutes,
-      });
+      };
+      setCapability(saved);
+      setSavedCapability(saved);
       setRequests(requestResult);
       setGarage(garageResult);
     } catch (error) {
@@ -95,6 +101,24 @@ export const OwnerRoadsidePage: React.FC = () => {
   }, [navigate, showToast]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => () => {
+    if (settingsCloseTimer.current !== null) window.clearTimeout(settingsCloseTimer.current);
+  }, []);
+
+  const closeSettingsModal = () => {
+    if (saving) return;
+    setSettingsModalOpen(false);
+    if (settingsCloseTimer.current !== null) window.clearTimeout(settingsCloseTimer.current);
+    settingsCloseTimer.current = window.setTimeout(() => setSettingsModalMounted(false), 530);
+  };
+
+  const openSettingsModal = () => {
+    setCapability(savedCapability);
+    if (settingsCloseTimer.current !== null) window.clearTimeout(settingsCloseTimer.current);
+    setSettingsModalMounted(true);
+    window.requestAnimationFrame(() => setSettingsModalOpen(true));
+  };
 
   const visibleRequests = useMemo(() => {
     const sorted = [...requests].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -117,7 +141,11 @@ export const OwnerRoadsidePage: React.FC = () => {
         skipGlobalLoader: true,
       });
       setCapability({ ...result, availability_note: result.availability_note || '', callback_phone: result.callback_phone || '' });
+      setSavedCapability({ ...result, availability_note: result.availability_note || '', callback_phone: result.callback_phone || '' });
       showToast(result.enabled ? (result.is_available ? 'Roadside requests are now enabled.' : 'Roadside profile saved; requests are paused.') : 'Roadside assistance is turned off.', 'success');
+      setSettingsModalOpen(false);
+      if (settingsCloseTimer.current !== null) window.clearTimeout(settingsCloseTimer.current);
+      settingsCloseTimer.current = window.setTimeout(() => setSettingsModalMounted(false), 530);
     } catch (error) {
       showToast(error instanceof ApiError ? error.message : 'Could not save roadside settings.', 'error');
     } finally {
@@ -128,17 +156,19 @@ export const OwnerRoadsidePage: React.FC = () => {
   const runAction = async (request: RoadsideRequestItem, action: 'accept' | 'decline' | 'progress', status?: RoadsideRequestStatus) => {
     setBusyId(request.id);
     try {
+      let updatedRequest: RoadsideRequestItem | null = null;
       if (action === 'accept') {
-        await apiClient(`/owner/roadside/requests/${request.id}/accept`, { method: 'POST', skipGlobalLoader: true });
+        updatedRequest = await apiClient<RoadsideRequestItem>(`/owner/roadside/requests/${request.id}/accept`, { method: 'POST', skipGlobalLoader: true });
       } else if (action === 'decline') {
-        await apiClient(`/owner/roadside/requests/${request.id}/decline`, {
+        updatedRequest = await apiClient<RoadsideRequestItem>(`/owner/roadside/requests/${request.id}/decline`, {
           method: 'POST', body: JSON.stringify({ reason: 'Unable to take this request' }), skipGlobalLoader: true,
         });
       } else if (status) {
-        await apiClient(`/owner/roadside/requests/${request.id}`, {
+        updatedRequest = await apiClient<RoadsideRequestItem>(`/owner/roadside/requests/${request.id}`, {
           method: 'PATCH', body: JSON.stringify({ status }), skipGlobalLoader: true,
         });
       }
+      if (updatedRequest) setRequests((current) => current.map((item) => item.id === request.id ? updatedRequest! : item));
       showToast(action === 'accept' ? 'Request accepted. Customer contact details are now available.' : action === 'decline' ? 'Request declined.' : `Request updated to ${statusLabels[status!]}.`, 'success');
       await load(true);
     } catch (error) {
@@ -171,12 +201,22 @@ export const OwnerRoadsidePage: React.FC = () => {
           </button>
         </header>
 
-        <div className="owner-roadside-overview" aria-live="polite">
-          <div><span className="owner-roadside-overview-label">Requests needing attention</span><strong>{openCount}</strong></div>
-          <span className={`owner-roadside-live ${capability.enabled && capability.is_available ? 'is-on' : ''}`}>
-            <i /> {capability.enabled && capability.is_available ? 'Available for requests' : capability.enabled ? 'Requests paused' : 'Not listed for roadside help'}
-          </span>
-        </div>
+        <section className="owner-roadside-overview" aria-label="Saved roadside settings" aria-live="polite">
+          <div className="owner-roadside-overview-main">
+            <span className="owner-roadside-overview-label">Roadside listing</span>
+            <span className={`owner-roadside-live ${savedCapability.enabled && savedCapability.is_available ? 'is-on' : ''}`}>
+              <i /> {savedCapability.enabled && savedCapability.is_available ? 'Available now' : savedCapability.enabled ? 'Paused' : 'Not listed'}
+            </span>
+            <span className="owner-roadside-summary-detail">{savedCapability.service_radius_km} km response area · {savedCapability.response_minutes} min callback target{savedCapability.callback_phone ? ` · ${savedCapability.callback_phone}` : ''}</span>
+            {savedCapability.availability_note && <span className="owner-roadside-summary-note">“{savedCapability.availability_note}”</span>}
+          </div>
+          <div className="owner-roadside-summary-action">
+            <p>These saved settings control whether riders can find your garage and what response to expect.</p>
+            <button className="owner-roadside-edit-settings" type="button" onClick={openSettingsModal}><ShieldCheck size={15}/> Edit response settings</button>
+          </div>
+        </section>
+
+        <div className="owner-roadside-open-summary"><span>Requests needing attention</span><strong>{openCount}</strong></div>
 
         <div className="owner-roadside-layout">
           <section className="owner-roadside-queue" aria-labelledby="roadside-queue-title">
@@ -208,7 +248,7 @@ export const OwnerRoadsidePage: React.FC = () => {
                           <td><strong className="owner-roadside-code">{request.request_code}</strong><span className="owner-roadside-row-sub">{remainingTime(request.expires_at)}</span></td>
                           <td className="owner-roadside-problem"><strong>{request.problem_description}</strong><span>{garage?.vehicle_types.find((item) => item.id === request.vehicle_type_id)?.name || 'Vehicle'} · {garage?.services.find((item) => item.id === request.service_id)?.name || 'Service'}</span></td>
                           <td>
-                            <span className="owner-roadside-location"><MapPin size={13} /> {request.exact_latitude !== null && request.exact_latitude !== undefined ? `${request.exact_latitude.toFixed(5)}, ${request.exact_longitude?.toFixed(5)}` : `${request.coarse_latitude.toFixed(3)}, ${request.coarse_longitude.toFixed(3)}`}</span>
+                            <span className="owner-roadside-location"><MapPin size={13} /> {request.location_label || 'Nearby area'} ({request.exact_latitude !== null && request.exact_latitude !== undefined ? `${request.exact_latitude.toFixed(5)}, ${request.exact_longitude?.toFixed(5)}` : `${request.coarse_latitude.toFixed(3)}, ${request.coarse_longitude.toFixed(3)}`})</span>
                             {request.address && <span className="owner-roadside-row-sub">{request.address}</span>}
                             {request.contact_phone && <a href={`tel:${request.contact_phone}`} className="owner-roadside-phone"><Phone size={12} /> {request.contact_phone}</a>}
                           </td>
@@ -226,8 +266,14 @@ export const OwnerRoadsidePage: React.FC = () => {
             </div>
           </section>
 
-          <aside className="owner-roadside-settings" aria-labelledby="roadside-settings-title">
-            <div className="owner-roadside-settings-heading"><div className="owner-roadside-settings-mark"><ShieldCheck size={17} /></div><div><h2 id="roadside-settings-title">Your response area</h2><p>Separate from your shop hours</p></div></div>
+        </div>
+
+      </main>
+
+      {settingsModalMounted && (
+        <div className={`owner-roadside-backdrop ${settingsModalOpen ? 'is-open' : 'is-closing'}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeSettingsModal(); }}>
+          <section aria-labelledby="roadside-settings-title" aria-modal="true" className={`owner-roadside-modal ${settingsModalOpen ? 'is-open' : 'is-closing'}`} onKeyDown={(event) => { if (event.key === 'Escape') closeSettingsModal(); }} role="dialog">
+            <header className="owner-roadside-modal-header"><div><h2 id="roadside-settings-title">Edit response settings</h2><p>Choose when and where your garage can respond. These settings are separate from your shop hours.</p></div><button type="button" className="owner-roadside-modal-close" aria-label="Close dialog" onClick={closeSettingsModal}>×</button></header>
             <form onSubmit={saveCapability} className="owner-roadside-form">
               <label className="owner-roadside-switch-row"><span><strong>List for roadside requests</strong><small>Customers can find your garage when enabled.</small></span><input type="checkbox" checked={capability.enabled} onChange={(event) => setCapability({ ...capability, enabled: event.target.checked, is_available: event.target.checked && capability.is_available })} /></label>
               <label className="owner-roadside-switch-row"><span><strong>Available now</strong><small>Pause here without changing normal shop hours.</small></span><input type="checkbox" checked={capability.is_available} disabled={!capability.enabled} onChange={(event) => setCapability({ ...capability, is_available: event.target.checked })} /></label>
@@ -241,9 +287,9 @@ export const OwnerRoadsidePage: React.FC = () => {
             </form>
             <div className="owner-roadside-privacy"><Clock3 size={14} /><span>Requests expire after 15 minutes. Exact rider details stay hidden until accepted.</span></div>
             {garage && (!garage.services.length || !garage.vehicle_types.length) && <p className="owner-roadside-catalog-note">Add services and vehicle types in <a href="/owner/services">Services &amp; Vehicles</a> so riders can match your garage.</p>}
-          </aside>
+          </section>
         </div>
-      </main>
+      )}
     </AppShell>
   );
 };

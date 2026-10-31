@@ -19,6 +19,7 @@ import { OwnerPhotosPage } from './features/owner/OwnerPhotosPage';
 import { OwnerServicesPage } from './features/owner/OwnerServicesPage';
 import { OwnerStaffPage } from './features/owner/OwnerStaffPage';
 import { OwnerRoadsidePage } from './features/owner/OwnerRoadsidePage';
+import { CustomerRoadsidePage } from './features/roadside/CustomerRoadsidePage';
 
 import { AdminDashboardPage } from './features/admin/AdminDashboardPage';
 import { AdminRegistrationsPage } from './features/admin/AdminRegistrationsPage';
@@ -38,6 +39,7 @@ export const App: React.FC = () => {
           <Route path="/find" element={<LandingPage />} />
           <Route path="/garages" element={<DiscoveryPage />} />
           <Route path="/garages/:id" element={<GarageProfilePage />} />
+          <Route path="/roadside" element={<CustomerRoadsidePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

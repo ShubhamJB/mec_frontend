@@ -45,9 +45,10 @@ export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children
                 </Link>
               )}
               {user.role === 'CUSTOMER' && (
-                <Link to="/account" style={{ color: 'var(--ink)' }}>
-                  My Account
-                </Link>
+                <>
+                  <Link to="/roadside" style={{ color: 'var(--accent)', fontWeight: 600 }}>Roadside help</Link>
+                  <Link to="/account" style={{ color: 'var(--ink)' }}>My Account</Link>
+                </>
               )}
               <Link to="/notifications" style={{ color: 'var(--ink)' }}>
                 Notifications
@@ -61,6 +62,7 @@ export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children
             </>
           ) : (
             <>
+              <Link to="/roadside" style={{ color: 'var(--accent)', fontWeight: 600 }}>Roadside help</Link>
               <Link to="/login" style={{ color: 'var(--ink)' }}>Log in</Link>
               <Link
                 to="/register"

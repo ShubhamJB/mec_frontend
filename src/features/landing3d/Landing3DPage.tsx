@@ -66,6 +66,9 @@ export const Landing3DPage: React.FC = () => {
                 <Link to="/find" className="l3-btn l3-btn-lg">
                   Find a garage near you
                 </Link>
+                <Link to="/roadside" className="l3-link">
+                  Stranded? Get roadside help
+                </Link>
                 <Link to="/register?role=owner" className="l3-link">
                   I run a workshop
                 </Link>

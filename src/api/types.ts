@@ -176,11 +176,12 @@ export interface RoadsideRequestItem {
   request_code: string;
   garage_id: string;
   garage_name: string;
-  customer_id: string;
+  customer_id: string | null;
   status: RoadsideRequestStatus;
   vehicle_type_id: string;
   service_id: string;
   problem_description: string;
+  location_label?: string | null;
   coarse_latitude: number;
   coarse_longitude: number;
   exact_latitude: number | null;
@@ -195,6 +196,17 @@ export interface RoadsideRequestItem {
   created_at: string;
   updated_at: string;
   events: RoadsideRequestEvent[];
+}
+
+export interface GuestRoadsideRequestStatus {
+  request_code: string;
+  garage_name: string;
+  status: RoadsideRequestStatus;
+  decline_reason: string | null;
+  quote_amount: string | null;
+  quote_currency: string | null;
+  eta_minutes: number | null;
+  updated_at: string;
 }
 
 export interface AdminDashboardCounts {

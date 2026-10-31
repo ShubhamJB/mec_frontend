@@ -108,6 +108,20 @@ export const LandingPage: React.FC = () => {
             >
               Browse All Garages
             </button>
+            <button
+              onClick={() => navigate('/roadside')}
+              style={{
+                border: '1px solid var(--accent)',
+                padding: '12px 20px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: 'var(--step-caption)',
+                color: 'var(--accent)',
+                backgroundColor: 'var(--surface)',
+                fontWeight: 600,
+              }}
+            >
+              Stranded? Get roadside help
+            </button>
           </div>
 
           {locationError && (
