@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './landing3d.css';
-import { HexMark } from '../../components/HexMark';
+import { SiteNav } from '../../components/SiteNav';
 import { BUILT_TODAY, CONTACT_EMAIL, NOT_IN_THIS_RELEASE } from './content';
 import { OpenDialog } from './OpenDialog';
 import { Scene3D } from './Scene3D';
@@ -30,27 +30,11 @@ export const Landing3DPage: React.FC = () => {
     <div className="l3">
       <Scene3D ctaHoverRef={ctaHover} />
 
-      <header className="l3-header">
-        <Link to="/" className="l3-brand">
-          <HexMark size={18} />
-          <strong>Find Your Mechanic</strong>
-        </Link>
-        <nav className="l3-nav" aria-label="Sections">
-          {NAV.map((item) => (
-            <button key={item.label} type="button" onClick={() => goTo(item.chapter)}>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="l3-header-actions">
-          <Link to="/login" className="l3-link">
-            Log in
-          </Link>
-          <Link to="/find" className="l3-btn">
-            Open the app
-          </Link>
-        </div>
-      </header>
+      <SiteNav
+        variant="floating"
+        sections={NAV.map((item) => ({ label: item.label, onClick: () => goTo(item.chapter) }))}
+        primaryAction={{ label: 'Open the app', to: '/find' }}
+      />
 
       <main>
         <section className="l3-chapter" data-chapter="0" style={{ height: '300vh' }}>

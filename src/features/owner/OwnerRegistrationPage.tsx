@@ -323,7 +323,7 @@ export const OwnerRegistrationPage: React.FC = () => {
               }}
             >
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>
                   Workshop approved and published
                 </h3>
                 <p style={{ fontSize: 'var(--step-small)', opacity: 0.9 }}>
@@ -382,7 +382,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 Under Administrative Review
               </div>
 
-              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '8px' }}>
                 Registration Awaiting Verification
               </h2>
               <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)', lineHeight: 1.5, marginBottom: '20px' }}>
@@ -431,7 +431,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                 marginBottom: '28px',
               }}
             >
-              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '6px' }}>
                 Registration Rejected — Revisions Required
               </h3>
               <p style={{ fontSize: 'var(--step-small)', marginBottom: '12px' }}>
@@ -600,7 +600,7 @@ export const OwnerRegistrationPage: React.FC = () => {
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>1. Workshop Details</h2>
+                    <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>1. Workshop Details</h2>
                     <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 500 }}>Step 1 of 3</span>
                   </div>
                   <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
@@ -779,7 +779,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                     onClick={handleNextStep1}
                     style={{
                       padding: '11px 28px',
-                      backgroundColor: 'var(--ink)',
+                      backgroundColor: 'var(--accent)',
                       color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,
@@ -811,7 +811,7 @@ export const OwnerRegistrationPage: React.FC = () => {
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>2. Services &amp; Capabilities</h2>
+                    <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>2. Services &amp; Capabilities</h2>
                     <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 500 }}>Step 2 of 3</span>
                   </div>
                   <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
@@ -969,7 +969,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                     onClick={handleNextStep2}
                     style={{
                       padding: '11px 28px',
-                      backgroundColor: 'var(--ink)',
+                      backgroundColor: 'var(--accent)',
                       color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,
@@ -1001,7 +1001,7 @@ export const OwnerRegistrationPage: React.FC = () => {
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>3. Operating Hours (7 Days)</h2>
+                    <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>3. Operating Hours (7 Days)</h2>
                     <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 500 }}>Step 3 of 3</span>
                   </div>
                   <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
@@ -1214,7 +1214,7 @@ export const OwnerRegistrationPage: React.FC = () => {
                     disabled={isSubmitting}
                     style={{
                       padding: '12px 32px',
-                      backgroundColor: 'var(--ink)',
+                      backgroundColor: 'var(--accent)',
                       color: 'var(--on-dark)',
                       borderRadius: 'var(--radius-sm)',
                       fontWeight: 600,

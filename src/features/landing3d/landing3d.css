@@ -30,7 +30,7 @@
 
 .l3-btn {
   display: inline-flex; align-items: center; justify-content: center; padding: 10px 18px; font-size: var(--step-caption); font-weight: 600;
-  color: var(--on-dark); background-color: var(--ink); border: none; border-radius: var(--radius-sm); cursor: pointer;
+  color: #fff; background-color: var(--accent); border: none; border-radius: 9999px; cursor: pointer;
 }
 .l3-btn:hover { background-color: var(--accent-strong); color: var(--accent-ink); }
 .l3-btn-lg { padding: 14px 24px; font-size: var(--step-body); }
@@ -79,7 +79,7 @@
 .l3-end .l3-footer-end button { opacity: 0.8; }
 
 @media (max-width: 1000px) {
-  .l3-nav { display: none; }
+  
   .l3-left { top: auto; bottom: 9vh; margin-top: 0; }
   .l3-right { top: auto; bottom: 4vh; margin-top: 0; left: var(--l3-gutter); right: var(--l3-gutter); max-width: none; width: auto; }
   .l3-bottom { bottom: auto; top: calc(var(--l3-header) + 12px); }

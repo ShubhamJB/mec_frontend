@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { RoleGuard } from './auth/RoleGuard';
 
@@ -23,9 +23,13 @@ import { CustomerRoadsidePage } from './features/roadside/CustomerRoadsidePage';
 
 import { AdminDashboardPage } from './features/admin/AdminDashboardPage';
 import { AdminRegistrationsPage } from './features/admin/AdminRegistrationsPage';
-import { AdminLoginPage } from './features/admin/AdminLoginPage';
 import { GlobalLoadingSpinner } from './components/GlobalLoadingSpinner';
 import { ToastProvider } from './components/ToastProvider';
+
+const AdminLoginRedirect: React.FC = () => {
+  const { search } = useLocation();
+  return <Navigate to={`/login${search}`} replace />;
+};
 
 export const App: React.FC = () => {
   return (
@@ -41,7 +45,7 @@ export const App: React.FC = () => {
           <Route path="/garages/:id" element={<GarageProfilePage />} />
           <Route path="/roadside" element={<CustomerRoadsidePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginRedirect />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { StarRating } from '../StarRating';
 import './map.css';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, getTileSource, isValidCoordinate, readToken } from './mapConfig';
 import { createHexIcon, originIcon } from './mapIcons';
@@ -127,7 +128,7 @@ export const GarageMap: React.FC<GarageMapProps> = ({
   const tiles = useMemo(() => getTileSource(), []);
   const colors = useMemo(
     () => ({
-      route: readToken('--map-route', '#1f2de6'),
+      route: readToken('--map-route', '#4a55e0'),
       casing: readToken('--map-route-casing', '#ffffff'),
       alternative: readToken('--map-alt-route', '#8a93a3'),
     }),
@@ -239,7 +240,7 @@ export const GarageMap: React.FC<GarageMapProps> = ({
 
           {visible.map((g) => (
             <Marker key={g.id} position={[g.latitude, g.longitude]} icon={createHexIcon({
-                label: g.average_rating ? g.average_rating.toFixed(1) : undefined,
+                label: g.average_rating ? '★' : undefined,
                 variant: g.id === routeTargetId ? 'selected' : 'default',
               })}
               title={g.name}
@@ -254,9 +255,9 @@ export const GarageMap: React.FC<GarageMapProps> = ({
                     {g.name}
                   </strong>
                 )}
-                <div className="fym-popup-meta">
-                  {g.average_rating
-                    ? `${g.average_rating.toFixed(1)} out of 5 (${g.review_count ?? 0})`
+                <div className="fym-popup-meta fym-popup-rating">
+                  {g.average_rating !== null && g.average_rating !== undefined
+                    ? <><StarRating rating={g.average_rating} size="small" /><span>{g.review_count ?? 0} {g.review_count === 1 ? 'review' : 'reviews'}</span></>
                     : 'No reviews yet'}
                 </div>
                 {g.address && <div className="fym-popup-meta">{g.address}</div>}

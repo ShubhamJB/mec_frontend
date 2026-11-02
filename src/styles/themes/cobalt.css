@@ -1,26 +1,31 @@
 :root {
-  --bg: #eef0f3;
-  --surface: #e2e5ea;
-  --surface-raised: #f6f7f9;
+  --bg: #eef1f8;
+  --surface: #e4e8f2;
+  --surface-raised: #f6f8fc;
   --card: #ffffff;
-  --ink: #0b0c0e;
-  --ink-secondary: #2f343c;
-  --muted: #5d6470;
-  --rule: #dfe3e9;
-  --border: #cdd3db;
+  --ink: #1e1f21;
+  --ink-secondary: #3b3e46;
+  --muted: #565a64;
+  --rule: #e3e5ee;
+  --faint: #8a909c;
+  --border: #c2c3ce;
 
-  --accent: #1f2de6;
+  --accent: #4a55e0;
   --accent-ink: #ffffff;
-  --accent-light: #e5e7fc;
-  --accent-strong: #1520b8;
+  --tint: #e6e8fb;
+  --tint-ink: #2f37b0;
+  --purple: #8570f8;
+  --sky: #3fd9fb;
+  --accent-light: #e6e8fb;
+  --accent-strong: #3a44c4;
   --on-dark: #ffffff;
   --field: var(--accent);
   --field-ink: var(--accent-ink);
 
-  --app-chrome: #f3f4f8;
-  --app-sheet: #f3f4f8;
+  --app-chrome: #eef1f8;
+  --app-sheet: #f6f8fc;
   --app-sheet-edge: transparent;
-  --app-active: #e4e7ee;
+  --app-active: #e4e8f2;
 
   --status-open-bg: #dcf3e4;
   --status-open-ink: #0f5130;
@@ -36,13 +41,14 @@
 
   --map-tiles: osm;
   --map-tile-filter: none;
-  --map-route: #1f2de6;
+  --map-route: #4a55e0;
   --map-route-casing: #ffffff;
   --map-alt-route: #8a93a3;
 
   --font-display: 'Stack Sans Headline', 'Stack Sans Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-sans: 'Stack Sans Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-heading: var(--font-sans);
+  --font-serif: 'Source Serif 4', 'Tiempos Headline', ui-serif, Georgia, serif;
   --weight-display: 300;
   --weight-heading: 600;
   --tracking-display: -0.022em;

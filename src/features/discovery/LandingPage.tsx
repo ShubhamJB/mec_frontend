@@ -6,6 +6,11 @@ import { GarageMap } from '../../components/map/GarageMap';
 import { storeOrigin } from '../../lib/userLocation';
 import { apiClient } from '../../api/client';
 import { GarageCardItem } from '../../api/types';
+import { StarRating } from '../../components/StarRating';
+import { ArrowRight, Clock, MapPin, Phone, Search, Siren, Star } from 'lucide-react';
+import '../../components/buttons.css';
+import './discovery.css';
+import './landing.css';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,200 +61,117 @@ export const LandingPage: React.FC = () => {
 
   return (
     <PublicLayout>
-      <div style={{ maxWidth: '980px', margin: '0 auto', padding: '64px 24px 80px' }}>
-        {/* Quiet-instrument style hero */}
-        <section style={{ maxWidth: 'var(--hero-measure)', marginBottom: '64px' }}>
-          <h1
-            className="fym-display"
-            style={{
-              fontSize: 'var(--step-hero)',
-              marginBottom: '16px',
-            }}
-          >
-            Find a trusted mechanic nearby, right when you need one.
-          </h1>
-          <p
-            style={{
-              fontSize: 'var(--step-lead)',
-              color: 'var(--muted)',
-              marginBottom: '32px',
-              lineHeight: 1.45,
-            }}
-          >
-            Discover verified bike and car garages around your location. Check real-time operating
-            availability, compare verified driver reviews, and call directly.
-          </p>
+      <div className="lp-page">
+        <section className="lp-hero">
+          <div className="lp-hero__copy">
+            <span className="lp-eyebrow">Verified garages, near you</span>
+            <h1 className="lp-title">
+              Find a trusted mechanic nearby, <em>right when you need one.</em>
+            </h1>
+            <p className="lp-lead">
+              Discover verified bike and car garages around your location. Check real-time availability, compare
+              driver reviews, and call directly.
+            </p>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
-            <button
-              onClick={requestBrowserLocation}
-              disabled={loadingLocation}
-              style={{
-                backgroundColor: 'var(--ink)',
-                color: 'var(--on-dark)',
-                padding: '12px 20px',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 500,
-                fontSize: 'var(--step-caption)',
-              }}
-            >
-              {loadingLocation ? 'Detecting your location...' : 'Find Garages Near Me'}
-            </button>
-            <button
-              onClick={() => navigate('/garages')}
-              style={{
-                border: '1px solid var(--border)',
-                padding: '12px 20px',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: 'var(--step-caption)',
-                color: 'var(--ink)',
-                backgroundColor: 'var(--surface)',
-              }}
-            >
-              Browse All Garages
-            </button>
-            <button
-              onClick={() => navigate('/roadside')}
-              style={{
-                border: '1px solid var(--accent)',
-                padding: '12px 20px',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: 'var(--step-caption)',
-                color: 'var(--accent)',
-                backgroundColor: 'var(--surface)',
-                fontWeight: 600,
-              }}
-            >
+            <div className="lp-actions">
+              <button type="button" className="btn btn--primary btn--lg" onClick={requestBrowserLocation} disabled={loadingLocation}>
+                <MapPin size={18} strokeWidth={1.8} />
+                {loadingLocation ? 'Detecting your location...' : 'Find garages near me'}
+              </button>
+              <button type="button" className="btn btn--ghost btn--lg" onClick={() => navigate('/garages')}>
+                Browse all garages
+              </button>
+            </div>
+            <button type="button" className="btn btn--soft lp-roadside" onClick={() => navigate('/roadside')}>
+              <Siren size={17} strokeWidth={1.8} />
               Stranded? Get roadside help
+              <ArrowRight size={16} strokeWidth={1.8} />
             </button>
+
+            {locationError && <div className="lp-alert">{locationError}</div>}
+
+            <form onSubmit={handleManualSearch} role="search" className="search-capsule lp-search">
+              <Search size={18} strokeWidth={1.8} className="search-capsule__icon" aria-hidden="true" />
+              <input
+                type="text"
+                aria-label="Search by workshop name or city"
+                placeholder="Or search by workshop name or city..."
+                value={manualAddress}
+                onChange={(e) => setManualAddress(e.target.value)}
+              />
+              <button type="submit" className="search-capsule__submit">
+                Search
+              </button>
+            </form>
           </div>
 
-          {locationError && (
-            <div
-              style={{
-                padding: '12px',
-                backgroundColor: 'var(--status-unavail-bg)',
-                color: 'var(--status-unavail-ink)',
-                fontSize: 'var(--step-small)',
-                borderRadius: 'var(--radius-sm)',
-                marginBottom: '16px',
-              }}
-            >
-              {locationError}
+          <div className="lp-hero__art" aria-hidden="true">
+            <div className="lp-art-card lp-art-card--main">
+              <span className="lp-art-status">Open now</span>
+              <strong>Your nearest garage</strong>
+              <span className="lp-art-muted">Closes at 18:00 &middot; 1.2 km away</span>
+              <div className="lp-art-row">
+                <span className="lp-art-stars"><Star size={14} fill="currentColor" strokeWidth={0} /> 4.8</span>
+                <span className="lp-art-call"><Phone size={14} strokeWidth={2} /> Call</span>
+              </div>
             </div>
-          )}
-
-          {/* Manual location fallback */}
-          <form onSubmit={handleManualSearch} style={{ display: 'flex', gap: '8px', maxWidth: '440px' }}>
-            <input
-              type="text"
-              placeholder="Or search by workshop name or city..."
-              value={manualAddress}
-              onChange={(e) => setManualAddress(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '10px 14px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--surface)',
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                padding: '10px 16px',
-                backgroundColor: 'var(--surface-raised)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 500,
-              }}
-            >
-              Search
-            </button>
-          </form>
+            <div className="lp-art-card lp-art-card--float">
+              <Clock size={18} strokeWidth={1.7} />
+              <span>Real-time hours</span>
+            </div>
+          </div>
         </section>
 
-        {/* Nearby Quick Preview if location was detected */}
         {userLocation && nearbyGarages.length > 0 && (
-          <section style={{ marginBottom: '64px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
-              <h2 style={{ fontSize: '20px' }}>Nearest Available Workshops</h2>
+          <section className="lp-section">
+            <div className="lp-section__head">
+              <h2>Nearest available <em>workshops</em></h2>
               <button
-                onClick={() =>
-                  navigate(`/garages?latitude=${userLocation.lat}&longitude=${userLocation.lng}`)
-                }
-                style={{ fontSize: 'var(--step-small)', color: 'var(--accent)', textDecoration: 'underline' }}
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => navigate(`/garages?latitude=${userLocation.lat}&longitude=${userLocation.lng}`)}
               >
-                View full list
+                View full list <ArrowRight size={15} strokeWidth={1.8} />
               </button>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <GarageMap
-                garages={nearbyGarages}
-                origin={userLocation}
-                height={340}
-                ariaLabel="Map of the nearest workshops"
-              />
+            <div className="lp-map">
+              <GarageMap garages={nearbyGarages} origin={userLocation} height={340} ariaLabel="Map of the nearest workshops" />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div className="lp-cards">
               {nearbyGarages.map((garage) => (
-                <div
-                  key={garage.id}
-                  onClick={() => navigate(`/garages/${garage.id}`)}
-                  style={{
-                    backgroundColor: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '20px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                <div key={garage.id} className="lp-garage" onClick={() => navigate(`/garages/${garage.id}`)}>
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <h3 style={{ fontSize: '18px' }}>{garage.name}</h3>
+                    <div className="lp-garage__head">
+                      <h3>{garage.name}</h3>
                       <AvailabilityBadge availability={garage.availability} showDetails />
                     </div>
                     {garage.distance_km !== undefined && garage.distance_km !== null && (
-                      <p className="tabular-nums" style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '8px' }}>
-                        {garage.distance_km.toFixed(1)} km away
-                      </p>
+                      <p className="lp-garage__distance tabular-nums">{garage.distance_km.toFixed(1)} km away</p>
                     )}
-                    <p style={{ fontSize: 'var(--step-small)', color: 'var(--ink-secondary)', marginBottom: '16px' }}>
-                      {garage.address || 'Address on file'}
-                    </p>
+                    <p className="lp-garage__address">{garage.address || 'Address on file'}</p>
                   </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--rule)', paddingTop: '12px' }}>
-                    <div style={{ fontSize: 'var(--step-small)' }}>
-                      {garage.average_rating ? (
-                        <span>
-                          <strong>{garage.average_rating.toFixed(1)}</strong> ({garage.review_count} reviews)
+                  <div className="lp-garage__foot">
+                    <div>
+                      {garage.average_rating !== null && garage.average_rating !== undefined ? (
+                        <span className="discovery-rating-summary">
+                          <StarRating rating={garage.average_rating} size="small" />
+                          <span>{garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'}</span>
                         </span>
                       ) : (
-                        <span style={{ color: 'var(--muted)' }}>No reviews yet</span>
+                        <span className="lp-muted">No reviews yet</span>
                       )}
                     </div>
                     <a
                       href={`tel:${garage.phone}`}
+                      className="btn btn--primary btn--sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         apiClient(`/garages/${garage.id}/analytics/call-click`, { method: 'POST' }).catch(() => {});
                       }}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: 'var(--surface-raised)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: 'var(--step-small)',
-                        fontWeight: 500,
-                      }}
                     >
-                      Call
+                      <Phone size={14} strokeWidth={2} /> Call
                     </a>
                   </div>
                 </div>
@@ -258,34 +180,22 @@ export const LandingPage: React.FC = () => {
           </section>
         )}
 
-        {/* Quiet feature claims from direction blueprint */}
-        <section
-          style={{
-            borderTop: '1px solid var(--rule)',
-            paddingTop: '48px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '32px',
-          }}
-        >
-          <div>
-            <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>Real-time Open & Temporary Status</h3>
-            <p style={{ fontSize: 'var(--step-caption)', color: 'var(--muted)', lineHeight: 1.5 }}>
-              Operating schedules run against the garage's exact local timezone. When a mechanic is away on breakdown service, their temporary status updates immediately.
-            </p>
-          </div>
-          <div>
-            <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>Authentic Customer Reviews</h3>
-            <p style={{ fontSize: 'var(--step-caption)', color: 'var(--muted)', lineHeight: 1.5 }}>
-              Reviews can only be submitted by registered customers with transparent score breakdowns. Garages cannot manipulate ratings or hide valid feedback.
-            </p>
-          </div>
-          <div>
-            <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>Direct Garage Phone Access</h3>
-            <p style={{ fontSize: 'var(--step-caption)', color: 'var(--muted)', lineHeight: 1.5 }}>
-              No middleman dispatchers or hidden booking surcharges. Connect directly with the shop owner or technician over the phone.
-            </p>
-          </div>
+        <section className="lp-features">
+          <article>
+            <span className="lp-feature-icon"><Clock size={20} strokeWidth={1.7} /></span>
+            <h3>Real-time open &amp; temporary status</h3>
+            <p>Operating schedules run against the garage&apos;s exact local timezone. When a mechanic is away on breakdown service, their temporary status updates immediately.</p>
+          </article>
+          <article>
+            <span className="lp-feature-icon"><Star size={20} strokeWidth={1.7} /></span>
+            <h3>Authentic customer reviews</h3>
+            <p>Reviews can only be submitted by registered customers with transparent score breakdowns. Garages cannot manipulate ratings or hide valid feedback.</p>
+          </article>
+          <article>
+            <span className="lp-feature-icon"><Phone size={20} strokeWidth={1.7} /></span>
+            <h3>Direct garage phone access</h3>
+            <p>No middleman dispatchers or hidden booking surcharges. Connect directly with the shop owner or technician over the phone.</p>
+          </article>
         </section>
       </div>
     </PublicLayout>

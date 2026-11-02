@@ -6,6 +6,7 @@ import { AppShell } from '../../components/AppShell';
 import { useToast } from '../../components/ToastProvider';
 import { ownerNavItems } from './ownerNav';
 import './owner-staff.css';
+import './owner-type.css';
 
 type Draft = { full_name: string; phone: string; role_title: string };
 const emptyDraft: Draft = { full_name: '', phone: '', role_title: '' };
@@ -134,7 +135,7 @@ export const OwnerStaffPage: React.FC = () => {
           skipGlobalLoader: true,
         });
       }
-      showToast(isActive ? `${member.full_name} is active again.` : `${member.full_name} was deactivated.`, 'success');
+      showToast(isActive ? `${member.full_name} is active again.` : `${member.full_name} was deactivated.`, isActive ? 'success' : 'warning');
       await loadStaff();
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : 'Could not update staff status.', 'error');

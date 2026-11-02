@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../../components/AppShell';
+import { StarRating } from '../../components/StarRating';
 import { ownerNavItems } from './ownerNav';
 import { apiClient } from '../../api/client';
 import { OwnerDashboardSummary } from '../../api/types';
@@ -127,9 +128,9 @@ export const OwnerDashboardPage: React.FC = () => {
 
               <h2
                 style={{
-                  fontSize: '24px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '30px',
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--ink)',
                   marginBottom: '10px',
@@ -157,7 +158,7 @@ export const OwnerDashboardPage: React.FC = () => {
                     justifyContent: 'center',
                     gap: '8px',
                     padding: '12px 28px',
-                    backgroundColor: 'var(--ink)',
+                    backgroundColor: 'var(--accent)',
                     color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
@@ -203,9 +204,9 @@ export const OwnerDashboardPage: React.FC = () => {
 
               <h2
                 style={{
-                  fontSize: '24px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '30px',
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--ink)',
                   marginBottom: '10px',
@@ -236,7 +237,7 @@ export const OwnerDashboardPage: React.FC = () => {
                     justifyContent: 'center',
                     gap: '8px',
                     padding: '12px 28px',
-                    backgroundColor: 'var(--ink)',
+                    backgroundColor: 'var(--accent)',
                     color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
@@ -290,9 +291,9 @@ export const OwnerDashboardPage: React.FC = () => {
 
               <h2
                 style={{
-                  fontSize: '26px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '30px',
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--ink)',
                   marginBottom: '12px',
@@ -382,7 +383,7 @@ export const OwnerDashboardPage: React.FC = () => {
                     justifyContent: 'center',
                     gap: '8px',
                     padding: '14px 36px',
-                    backgroundColor: 'var(--ink)',
+                    backgroundColor: 'var(--accent)',
                     color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: 600,
@@ -403,207 +404,140 @@ export const OwnerDashboardPage: React.FC = () => {
 
   const isTempUnavailable = data.availability.is_temporarily_unavailable;
 
+  const statusHeadline = isTempUnavailable
+    ? "You're closed for now"
+    : data.availability.status === 'OPEN'
+      ? "You're open now"
+      : "You're closed right now";
+
+  const statusText = isTempUnavailable
+    ? 'Customers see "Temporarily Unavailable" on your listing. Reopen when you are back and your weekly schedule applies again.'
+    : data.availability.status === 'OPEN'
+      ? 'Your weekly schedule says you are open. Need to close unexpectedly? Customers will see "Temporarily Unavailable" until you reopen.'
+      : 'This follows your weekly schedule. You can still close for now if you want to be marked unavailable even during opening hours.';
+
+  const manageCards = [
+    {
+      to: '/owner/photos',
+      tag: 'Photos',
+      title: 'Workshop photos',
+      text: 'Add up to 10 photos of your bays and storefront. The first one is your cover.',
+      action: 'Upload photos',
+    },
+    {
+      to: '/owner/services',
+      tag: 'Services',
+      title: 'Services & vehicles',
+      text: 'Choose the repairs you offer and the vehicles you work on.',
+      action: 'Choose services & vehicles',
+    },
+    {
+      to: '/owner/hours',
+      tag: 'Schedule',
+      title: 'Weekly schedule',
+      text: 'Set your opening and closing times for each day of the week.',
+      action: 'Edit weekly schedule',
+    },
+  ];
+
   return (
     <AppShell
       title={`${data.name}`}
       scopeName={`Status: ${data.approval_status}`}
       navItems={ownerNavItems}
     >
-      {/* Framed sheet KPI Strip (App Screens taste rule: 1px dividers, plain figures, no sparkline tiles) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'var(--card)',
-          marginBottom: '32px',
-        }}
-      >
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Profile Views
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '24px', fontWeight: 500 }}>
-            {data.total_profile_views}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-            Total unique views
-          </span>
+      <section className="c-section">
+        <div className="c-grid c-grid--4">
+          <div className="c-card">
+            <span className="c-label">Profile views</span>
+            <span className="c-num tabular-nums">{data.total_profile_views}</span>
+            <span className="c-note">Total unique views</span>
+          </div>
+
+          <div className="c-card">
+            <span className="c-label">Call button taps</span>
+            <span className="c-num tabular-nums">{data.total_call_clicks}</span>
+            <span className="c-note">Direct customer calls</span>
+          </div>
+
+          <div className="c-card">
+            <span className="c-label">Average rating</span>
+            {data.average_rating !== null && data.average_rating !== undefined ? (
+              <StarRating rating={data.average_rating} size="large" />
+            ) : (
+              <span className="c-num c-num--sm">No rating yet</span>
+            )}
+            <span className="c-note">
+              Based on {data.review_count} {data.review_count === 1 ? 'review' : 'reviews'}
+            </span>
+          </div>
+
+          <div className="c-card">
+            <span className="c-label">Total reviews</span>
+            <span className="c-num tabular-nums">{data.review_count}</span>
+            <span className="c-note">Verified submissions</span>
+          </div>
         </div>
+      </section>
 
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Call Button Taps
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '24px', fontWeight: 500 }}>
-            {data.total_call_clicks}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-            Direct customer calls
-          </span>
+      <section className={`c-section c-panel${isTempUnavailable ? ' c-card--tint' : ''}`}>
+        <div>
+          <h2>{statusHeadline}</h2>
+          <p>{statusText}</p>
         </div>
-
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Average Rating
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '24px', fontWeight: 500 }}>
-            {data.average_rating ? data.average_rating.toFixed(1) : '—'}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-            Scale of 1.0 to 5.0
-          </span>
-        </div>
-
-        <div style={{ padding: '16px 20px' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Total Reviews
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '24px', fontWeight: 500 }}>
-            {data.review_count}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-            Verified submissions
-          </span>
-        </div>
-      </div>
-
-      <section
-        style={{
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: '24px',
-          marginBottom: '32px',
-          backgroundColor: isTempUnavailable ? 'var(--status-unavail-bg)' : 'var(--card)',
-        }}
-      >
-        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>
-          {isTempUnavailable
-            ? "You're closed for now"
-            : data.availability.status === 'OPEN'
-              ? "You're open now"
-              : "You're closed right now"}
-        </h2>
-        <p style={{ fontSize: 'var(--step-caption)', color: 'var(--ink-secondary)', maxWidth: '560px', marginBottom: '16px' }}>
-          {isTempUnavailable
-            ? 'Customers see "Temporarily Unavailable" on your listing. Reopen when you are back and your weekly schedule applies again.'
-            : data.availability.status === 'OPEN'
-              ? 'Your weekly schedule says you are open. Need to close unexpectedly? Customers will see "Temporarily Unavailable" until you reopen.'
-              : 'This follows your weekly schedule. You can still close for now if you want to be marked unavailable even during opening hours.'}
-        </p>
-
-        <label style={{ display: 'block', fontSize: 'var(--step-small)', marginBottom: '4px', color: 'var(--ink-secondary)' }}>
-          Message for customers (optional)
-        </label>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div>
+          <label className="c-field-label" htmlFor="unavailable-message">
+            Message for customers (optional)
+          </label>
           <input
+            id="unavailable-message"
+            className="c-input"
             type="text"
             maxLength={300}
             value={unavailMessage}
             onChange={(e) => setUnavailMessage(e.target.value)}
             placeholder="e.g. Back at 3 PM"
-            style={{
-              flex: '1 1 260px',
-              maxWidth: '420px',
-              padding: '8px 12px',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--card)',
-            }}
           />
-          {isTempUnavailable ? (
-            <>
-              <button
-                disabled={toggling}
-                onClick={() => handleToggleAvailability(false)}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--on-dark)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: 'var(--step-caption)',
-                }}
-              >
-                {toggling ? 'Updating...' : 'Reopen now'}
-              </button>
-              <button
-                disabled={toggling || unavailMessage.trim() === (data.availability.message ?? '')}
-                onClick={() => handleToggleAvailability(true)}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: 'var(--step-caption)',
-                }}
-              >
-                Save message
-              </button>
-            </>
-          ) : (
-            <button
-              disabled={toggling}
-              onClick={() => handleToggleAvailability(true)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'var(--ink)',
-                color: 'var(--on-dark)',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 500,
-                fontSize: 'var(--step-caption)',
-              }}
-            >
-              {toggling ? 'Updating...' : 'Close for now'}
-            </button>
-          )}
+          <div className="c-actions">
+            {isTempUnavailable ? (
+              <>
+                <button className="c-btn" disabled={toggling} onClick={() => handleToggleAvailability(false)}>
+                  {toggling ? 'Updating...' : 'Reopen now'}
+                </button>
+                <button
+                  className="c-btn c-btn--ghost"
+                  disabled={toggling || unavailMessage.trim() === (data.availability.message ?? '')}
+                  onClick={() => handleToggleAvailability(true)}
+                >
+                  Save message
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="c-btn" disabled={toggling} onClick={() => handleToggleAvailability(true)}>
+                  {toggling ? 'Updating...' : 'Close for now'}
+                </button>
+                <Link to="/owner/hours" className="c-btn c-btn--ghost">
+                  Edit schedule
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
-      <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>Manage your workshop</h2>
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-        {[
-          {
-            to: '/owner/photos',
-            title: 'Workshop photos',
-            text: 'Add up to 10 photos of your bays and storefront. The first one is your cover.',
-            action: 'Upload photos',
-          },
-          {
-            to: '/owner/services',
-            title: 'Services & vehicles',
-            text: 'Choose the repairs you offer and the vehicles you work on.',
-            action: 'Choose services & vehicles',
-          },
-          {
-            to: '/owner/hours',
-            title: 'Weekly schedule',
-            text: 'Set your opening and closing times for each day of the week.',
-            action: 'Edit weekly schedule',
-          },
-        ].map((card) => (
-          <Link
-            key={card.to}
-            to={card.to}
-            style={{
-              padding: '16px',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '6px',
-              backgroundColor: 'var(--card)',
-            }}
-          >
-            <strong style={{ fontSize: '15px' }}>{card.title}</strong>
-            <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', flex: 1 }}>{card.text}</span>
-            <span style={{ fontSize: 'var(--step-caption)', fontWeight: 600, color: 'var(--accent)' }}>
-              {card.action} &rarr;
-            </span>
-          </Link>
-        ))}
+      <section className="c-section">
+        <p className="c-eyebrow">Manage your workshop</p>
+        <div className="c-grid c-grid--auto">
+          {manageCards.map((card) => (
+            <Link key={card.to} to={card.to} className="c-card c-card--white">
+              <span className="c-tag">{card.tag}</span>
+              <h3>{card.title}</h3>
+              <p>{card.text}</p>
+              <span className="c-link">{card.action} &rarr;</span>
+            </Link>
+          ))}
+        </div>
       </section>
     </AppShell>
   );

@@ -66,7 +66,7 @@ export const VerifyEmailPage: React.FC = () => {
             style={{
               display: 'inline-block',
               padding: '10px 18px',
-              backgroundColor: 'var(--ink)',
+              backgroundColor: 'var(--accent)',
               color: 'var(--on-dark)',
               borderRadius: 'var(--radius-sm)',
               fontWeight: 500,
@@ -98,7 +98,7 @@ export const VerifyEmailPage: React.FC = () => {
                 disabled={resending}
                 style={{
                   padding: '8px 14px',
-                  backgroundColor: 'var(--ink)',
+                  backgroundColor: 'var(--accent)',
                   color: 'var(--on-dark)',
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 500,

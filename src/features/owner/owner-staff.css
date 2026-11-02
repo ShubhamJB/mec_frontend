@@ -40,10 +40,10 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
   padding: 8px 14px;
-  background: var(--ink);
+  background: var(--accent);
   color: var(--on-dark, var(--card));
   font: inherit;
   cursor: pointer;

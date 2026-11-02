@@ -1,0 +1,48 @@
+.dd { position: relative; width: 100%; }
+.dd--compact { width: auto; min-width: 180px; }
+
+.dd-control { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-height: 52px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--card, #fff); color: var(--ink); cursor: pointer; transition: border-color 150ms ease, box-shadow 150ms ease; }
+.dd-control:hover { border-color: var(--accent); }
+.dd-control:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dd-control.is-open { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74, 85, 224, .14); }
+.dd--compact .dd-control { align-items: center; min-height: 40px; padding: 0 14px; border-radius: 9999px; }
+
+.dd-values { display: flex; flex: 1; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.dd-placeholder { align-self: center; min-height: 30px; padding-top: 4px; color: #a3a6af; font-size: 15px; }
+.dd-single { font-size: 14px; font-weight: 450; white-space: nowrap; }
+.dd-chevron { flex: none; align-self: center; color: var(--muted); transition: transform 180ms ease; }
+.dd-control.is-open .dd-chevron { transform: rotate(180deg); color: var(--ink); }
+
+.dd-tag { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 8px 0 12px; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--card, #fff); font-size: 14px; line-height: 1; }
+.dd-tag button { display: grid; width: 18px; height: 18px; place-items: center; border-radius: 9999px !important; color: var(--ink); }
+.dd-tag button:hover { background: var(--accent); color: #fff; }
+
+.dd-panel { position: absolute; z-index: 1200; top: calc(100% + 8px); left: 0; right: 0; overflow: hidden; border-radius: 20px; background: var(--card, #fff); box-shadow: 0 0 0 1px rgba(4, 23, 43, .05), 0 20px 25px -5px rgba(0, 0, 0, .1), 0 8px 10px -6px rgba(0, 0, 0, .1); animation: dd-in 150ms ease both; }
+.dd--compact .dd-panel { right: auto; min-width: 100%; width: max-content; }
+.dd--right .dd-panel { right: 0; left: auto; }
+@keyframes dd-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+.dd-search { position: relative; padding: 10px 10px 4px; }
+.dd-search svg { position: absolute; top: 50%; left: 24px; margin-top: 3px; color: var(--muted); transform: translateY(-50%); pointer-events: none; }
+.dd-search input { width: 100%; min-height: 40px; padding: 0 14px 0 38px; border: 0; border-radius: 12px; background: var(--surface); font-size: 14px; outline: none; }
+.dd-search input:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+.dd-list { max-height: 280px; margin: 0; padding: 6px; overflow-y: auto; list-style: none; scrollbar-width: thin; }
+.dd-option { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 15px; cursor: pointer; }
+.dd-option.is-active { background: var(--surface); }
+.dd-option.is-selected { font-weight: 500; }
+.dd-option__label { flex: 1; }
+.dd-check { display: grid; flex: none; width: 18px; height: 18px; place-items: center; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card, #fff); color: #fff; }
+.dd-option.is-selected .dd-check { border-color: var(--accent); background: var(--accent); }
+.dd-empty { padding: 14px 12px; color: var(--muted); font-size: 14px; }
+
+.dd--field .dd-control { align-items: center; min-height: 52px; padding: 0 16px; border-radius: 16px; }
+.dd--field .dd-single { font-size: 15px; font-weight: 400; }
+.dd-placeholder-text { color: #a3a6af; }
+.dd .dd-native { position: absolute; bottom: 0; left: 50%; width: 1px !important; height: 1px !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; opacity: 0; pointer-events: none; }
+.dd .dd-search input { width: 100%; min-height: 40px; padding: 0 14px 0 38px; border: 0; border-radius: 12px; background: var(--surface); font-size: 14px; }
+.dd .dd-control { font-size: 15px; }
+
+.dd--multi .dd-panel { min-width: 280px; }
+.dd-count { display: inline-grid; min-width: 20px; height: 20px; margin-left: 8px; padding: 0 6px; place-items: center; border-radius: 9999px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 500; }
+.dd--compact .dd-single { display: inline-flex; align-items: center; }

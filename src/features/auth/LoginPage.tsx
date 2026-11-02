@@ -1,32 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link, Navigate } from 'react-router-dom';
-import { PublicLayout } from '../../components/PublicLayout';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { AuthShell } from '../../components/AuthShell';
+import { useToast } from '../../components/ToastProvider';
 import { apiClient, setAccessToken, setStoredRefreshToken } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
-import { AuthTokens, User } from '../../api/types';
+import { AuthTokens, User, UserRole } from '../../api/types';
+
+const homeFor = (role: UserRole) =>
+  role === 'ADMIN' ? '/admin' : role === 'GARAGE_OWNER' ? '/owner' : '/find';
+
+const safeNext = (next: string | null) =>
+  next && next.startsWith('/') && !next.startsWith('//') ? next : null;
 
 export const LoginPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { user: currentUser, login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
-  const nextUrl = searchParams.get('next');
+  const nextUrl = safeNext(searchParams.get('next'));
 
-  // If already logged in, redirect to respective home
   if (currentUser) {
-    if (currentUser.role === 'ADMIN') {
-      return <Navigate to="/admin" replace />;
-    }
-    if (currentUser.role === 'GARAGE_OWNER') {
-      return <Navigate to="/owner" replace />;
-    }
-    return <Navigate to="/find" replace />;
+    return <Navigate to={homeFor(currentUser.role)} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,27 +44,18 @@ export const LoginPage: React.FC = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      // Hydrate profile to verify user role
       setAccessToken(tokenData.access_token);
       const user = await apiClient<User>('/users/me');
 
-      if (user.role === 'ADMIN') {
-        // Disallow admin sign-in through public customer/owner login page
-        setAccessToken(null);
-        setStoredRefreshToken(null);
-        setErrorMsg('Access restricted to customer and workshop accounts.');
-        return;
-      }
-
       await login(tokenData, user);
 
-      if (nextUrl) {
-        navigate(nextUrl);
-      } else if (user.role === 'GARAGE_OWNER') {
-        navigate('/owner');
-      } else {
-        navigate('/find');
-      }
+      const adminOnly = nextUrl?.startsWith('/admin');
+      const ownerOnly = nextUrl?.startsWith('/owner');
+      const nextAllowed =
+        nextUrl &&
+        (!adminOnly || user.role === 'ADMIN') &&
+        (!ownerOnly || user.role === 'GARAGE_OWNER');
+      navigate(nextAllowed ? nextUrl : homeFor(user.role));
     } catch (err: unknown) {
       setAccessToken(null);
       setStoredRefreshToken(null);
@@ -85,108 +79,85 @@ export const LoginPage: React.FC = () => {
         method: 'POST',
         body: JSON.stringify({ email: unverifiedEmail }),
       });
-      alert('Verification link resent. Please check your inbox.');
+      showToast('Verification link resent. Please check your inbox.', 'success');
     } catch {
-      alert('Unable to resend verification at this time. Please try again shortly.');
+      showToast('Unable to resend verification at this time. Please try again shortly.', 'error');
     }
   };
 
   return (
-    <PublicLayout>
-      <div style={{ maxWidth: '420px', margin: '64px auto', padding: '32px 24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px' }}>Sign In</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)', marginBottom: '24px' }}>
-          Access your mechanic account or workshop dashboard
-        </p>
+    <AuthShell mode="login">
+      <h1 className="auth-title">
+        Welcome <em>back</em>
+      </h1>
+      <p className="auth-sub">Sign in to find a mechanic or manage your workshop.</p>
 
-        {errorMsg && (
-          <div
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--status-danger-bg)',
-              color: 'var(--status-danger-ink)',
-              fontSize: 'var(--step-small)',
-              borderRadius: 'var(--radius-sm)',
-              marginBottom: '16px',
-            }}
-          >
-            {errorMsg}
-            {unverifiedEmail && (
-              <div style={{ marginTop: '8px' }}>
-                <button
-                  type="button"
-                  onClick={handleResendVerification}
-                  style={{ textDecoration: 'underline', color: 'inherit', fontWeight: 500 }}
-                >
-                  Resend verification email
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+      {errorMsg && (
+        <div className="auth-alert" role="alert">
+          {errorMsg}
+          {unverifiedEmail && (
+            <div>
+              <button type="button" onClick={handleResendVerification}>
+                Resend verification email
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 500, marginBottom: '4px' }}>
-              Email address
-            </label>
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <div>
+          <label className="auth-label" htmlFor="login-email">
+            Email address
+          </label>
+          <div className="auth-field">
+            <Mail size={18} strokeWidth={1.6} />
             <input
+              id="login-email"
               type="email"
               required
+              autoComplete="email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--surface)',
-              }}
             />
           </div>
+        </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 500, marginBottom: '4px' }}>
-              Password
-            </label>
+        <div>
+          <label className="auth-label" htmlFor="login-password">
+            Password
+          </label>
+          <div className="auth-field">
+            <Lock size={18} strokeWidth={1.6} />
             <input
-              type="password"
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
               required
+              autoComplete="current-password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--surface)',
-              }}
             />
+            <button
+              type="button"
+              className="auth-reveal"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onClick={() => setShowPassword((visible) => !visible)}
+            >
+              {showPassword ? <EyeOff size={18} strokeWidth={1.6} /> : <Eye size={18} strokeWidth={1.6} />}
+            </button>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            style={{
-              marginTop: '8px',
-              padding: '10px',
-              backgroundColor: 'var(--ink)',
-              color: 'var(--on-dark)',
-              borderRadius: 'var(--radius-sm)',
-              fontWeight: 500,
-            }}
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
+        <button type="submit" className="auth-submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Signing in...' : 'Sign in'}
+        </button>
+      </form>
 
-        <p style={{ marginTop: '24px', fontSize: 'var(--step-caption)', color: 'var(--muted)', textAlign: 'center' }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--ink)', textDecoration: 'underline' }}>
-            Register here
-          </Link>
-        </p>
-      </div>
-    </PublicLayout>
+      <p className="auth-switch">
+        New here? <Link to="/register">Create an account &rarr;</Link>
+      </p>
+    </AuthShell>
   );
 };

@@ -19,13 +19,11 @@ export const RoleGuard: React.FC<{
   }
 
   if (!user) {
-    const isAdminRoute = location.pathname.startsWith('/admin') || (allowedRoles.length === 1 && allowedRoles[0] === 'ADMIN');
-    const loginTarget = isAdminRoute ? '/admin/login' : '/login';
+    const loginTarget = '/login';
     return <Navigate to={`${loginTarget}?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   }
 
   if (user.account_status === 'SUSPENDED') {
-    const isAdmin = user.role === 'ADMIN' || location.pathname.startsWith('/admin');
     return (
       <div style={{ maxWidth: '600px', margin: '80px auto', padding: '32px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
         <h2 style={{ color: 'var(--status-danger-ink)', marginBottom: '12px' }}>Account Suspended</h2>
@@ -35,9 +33,9 @@ export const RoleGuard: React.FC<{
         <button
           onClick={() => {
             sessionStorage.clear();
-            window.location.href = isAdmin ? '/admin/login' : '/login';
+            window.location.href = '/login';
           }}
-          style={{ padding: '8px 16px', background: 'var(--ink)', color: 'var(--on-dark)', borderRadius: '4px' }}
+          style={{ padding: '8px 16px', background: 'var(--accent)', color: 'var(--on-dark)', borderRadius: '4px' }}
         >
           Sign Out
         </button>

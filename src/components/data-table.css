@@ -1,0 +1,384 @@
+:is(.console, .dt-scope) :is(.dt-frame, .owner-staff-table-frame, .owner-roadside-table-frame) {
+  position: relative;
+  min-height: 160px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 15px;
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) th {
+  padding: 14px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) td {
+  padding: 16px 20px;
+  border-top: 1px solid var(--rule);
+  vertical-align: middle;
+  color: var(--ink);
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) tbody tr:first-child td {
+  border-top: 0;
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) tbody tr {
+  background: transparent;
+  transition: background-color 150ms ease;
+}
+
+:is(.console, .dt-scope) :is(.dt, .owner-staff-table, .owner-roadside-table) tbody tr:hover {
+  background: var(--bg);
+}
+
+:is(.console, .dt-scope) .dt tbody tr.is-selected {
+  background: var(--bg);
+}
+
+:is(.console, .dt-scope) .dt tbody tr.is-selected td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+:is(.console, .dt-scope) .dt-primary {
+  font-weight: 480;
+}
+
+:is(.console, .dt-scope) .dt-sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 13px;
+}
+
+:is(.console, .dt-scope) .dt-muted {
+  color: var(--muted);
+}
+
+:is(.console, .dt-scope) :is(.dt-chip, .owner-staff-status, .owner-roadside-status) {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 26px;
+  padding: 3px 12px 3px 10px;
+  border: 0;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+:is(.console, .dt-scope) :is(.dt-chip, .owner-staff-status, .owner-roadside-status)::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+:is(.console, .dt-scope) .dt-chip.is-ok {
+  background: var(--status-open-bg);
+  color: var(--status-open-ink);
+}
+
+:is(.console, .dt-scope) .dt-chip.is-warn {
+  background: var(--status-unavail-bg);
+  color: var(--status-unavail-ink);
+}
+
+:is(.console, .dt-scope) .dt-chip.is-bad {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-ink);
+}
+
+:is(.console, .dt-scope) .dt-chip.is-idle {
+  background: var(--surface);
+  color: var(--muted);
+}
+
+:is(.console, .dt-scope) .dt-action {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 450;
+}
+
+:is(.console, .dt-scope) .dt-action:hover:not(:disabled) {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+:is(.console, .dt-scope) .dt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+:is(.console, .dt-scope) .dt-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: var(--surface);
+}
+
+:is(.console, .dt-scope) .dt-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 450;
+}
+
+:is(.console, .dt-scope) .dt-tab:hover {
+  color: var(--ink);
+}
+
+:is(.console, .dt-scope) .dt-tab.is-active {
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px rgba(4, 23, 43, 0.05), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:is(.console, .dt-scope) .dt-tab-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 12px;
+  text-align: center;
+}
+
+:is(.console, .dt-scope) .dt-total {
+  color: var(--faint);
+  font-size: 14px;
+}
+
+:is(.console, .dt-scope) .dt-empty {
+  padding: 48px 24px;
+  border: 1px solid var(--rule);
+  border-radius: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+:is(.console, .dt-scope) .dt-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  transition: opacity 150ms ease;
+}
+
+:is(.console, .dt-scope) .dt-pager.is-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+:is(.console, .dt-scope) .dt-pager-info {
+  color: var(--faint);
+  font-size: 14px;
+}
+
+:is(.console, .dt-scope) .dt-pager-pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:is(.console, .dt-scope) .dt-page-btn {
+  display: grid;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 450;
+}
+
+:is(.console, .dt-scope) .dt-page-btn:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+:is(.console, .dt-scope) .dt-page-btn.is-active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+:is(.console, .dt-scope) .dt-page-btn:disabled {
+  opacity: 0.35;
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button, .owner-roadside-action) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 450;
+  line-height: 1;
+  transform: none;
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button, .owner-roadside-action):hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  transform: none;
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button.is-edit, .owner-roadside-action.is-primary) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button.is-edit, .owner-roadside-action.is-primary):hover:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button.is-deactivate, .owner-roadside-action.is-danger) {
+  border-color: color-mix(in srgb, var(--status-danger-ink) 30%, var(--border));
+  background: #ffffff;
+  color: var(--status-danger-ink);
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-action-button.is-deactivate, .owner-roadside-action.is-danger):hover:not(:disabled) {
+  border-color: var(--status-danger-ink);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-ink);
+}
+
+:is(.console, .dt-scope) .owner-staff-action-button.is-reactivate {
+  border-color: color-mix(in srgb, var(--status-open-ink) 30%, var(--border));
+  color: var(--status-open-ink);
+}
+
+:is(.console, .dt-scope) .owner-staff-action-button.is-reactivate:hover:not(:disabled) {
+  border-color: var(--status-open-ink);
+  background: var(--status-open-bg);
+  color: var(--status-open-ink);
+}
+
+:is(.console, .dt-scope) :is(.owner-staff-actions, .owner-roadside-row-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+:is(.console, .dt-scope) .owner-roadside-code {
+  font-size: 15px;
+  font-weight: 480;
+}
+
+:is(.console, .dt-scope) :is(.owner-roadside-row-sub, .owner-roadside-problem span) {
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 13px;
+}
+
+:is(.console, .dt-scope) .owner-roadside-problem strong {
+  font-size: 15px;
+  font-weight: 480;
+}
+
+:is(.console, .dt-scope) .owner-roadside-date {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+:is(.console, .dt-scope) .owner-roadside-location-copy strong {
+  font-size: 15px;
+  font-weight: 480;
+}
+
+:is(.console, .dt-scope) .owner-roadside-location-copy small,
+:is(.console, .dt-scope) .owner-roadside-muted {
+  color: var(--faint);
+  font-size: 13px;
+}
+
+:is(.console, .dt-scope) .owner-roadside-location > svg {
+  color: var(--faint);
+}
+
+:is(.console, .dt-scope) .owner-roadside-phone {
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 450;
+}
+
+:is(.console, .dt-scope) .owner-roadside-feedback {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+:is(.console, .dt-scope) .owner-roadside-filter {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--surface);
+}
+
+:is(.console, .dt-scope) .owner-roadside-filter button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 450;
+}
+
+:is(.console, .dt-scope) .owner-roadside-filter button.is-selected {
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px rgba(4, 23, 43, 0.05), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:is(.console, .dt-scope) .owner-roadside-empty,
+:is(.console, .dt-scope) .owner-staff-empty {
+  border-radius: 24px;
+}

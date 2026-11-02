@@ -111,12 +111,13 @@ export const NotificationsPage: React.FC = () => {
               ? ownerRequests.find((item) => item.id === notification.related_entity_id)
               : undefined;
             const canCall = !!request?.contact_phone && request.status === 'ACCEPTED' && request.customer_contact_confirmed === false && !request.owner_calling_at;
+            const canFollowUp = !!request?.contact_phone && request.status === 'COMPLETED' && ['PARTIAL', 'UNRESOLVED'].includes(request.customer_feedback_resolution || '');
             return <tr key={notification.id} className={`${urgent ? 'is-urgent' : ''} ${notification.is_read ? 'is-read' : 'is-unread'}`}>
               <td><span className={`notifications-severity ${urgent ? 'is-high' : 'is-normal'}`}>{urgent && <AlertTriangle size={12}/>} {urgent ? 'High' : 'Normal'}</span></td>
               <td className="notifications-message"><strong>{notification.title.replace(/^URGENT:\s*/, '')}</strong><span>{notification.message}</span></td>
               <td className="notifications-date">{formatDate(notification.created_at)}</td>
               <td><span className={`notifications-status ${notification.is_read ? 'is-read' : 'is-new'}`}>{notification.is_read ? 'Read' : 'New'}</span></td>
-              <td><div className="notifications-row-actions">{canCall && <button className="notifications-call" type="button" disabled={busyId === request!.id} onClick={() => void callRider(request!)}><Phone size={13}/>{busyId === request!.id ? 'Calling…' : 'Call'}</button>}{!notification.is_read && <button className="notifications-read" type="button" onClick={() => void markAsRead(notification.id)}>Mark read</button>}{request?.owner_calling_at && <span className="notifications-called">Calling rider</span>}</div></td>
+              <td><div className="notifications-row-actions">{canCall && <button className="notifications-call" type="button" disabled={busyId === request!.id} onClick={() => void callRider(request!)}><Phone size={13}/>{busyId === request!.id ? 'Calling…' : 'Call'}</button>}{canFollowUp && <a className="notifications-call" href={`tel:${request!.contact_phone}`}><Phone size={13}/>Call rider</a>}{!notification.is_read && <button className="notifications-read" type="button" onClick={() => void markAsRead(notification.id)}>Mark read</button>}{request?.status === 'ACCEPTED' && request.owner_calling_at && request.customer_contact_confirmed == null && <span className="notifications-called">Calling rider</span>}</div></td>
             </tr>;
           })}</tbody></table></div>}
         </section>

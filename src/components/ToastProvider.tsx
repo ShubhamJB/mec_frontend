@@ -1,18 +1,42 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Check, CircleAlert, Info } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import './toast.css';
 
-export type ToastKind = 'success' | 'error' | 'info';
+export type ToastKind = 'success' | 'error' | 'info' | 'warning';
+
+export type ToastAction = {
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+};
+
+export type ToastOptions = {
+  title?: string;
+  key?: string;
+  actions?: ToastAction[];
+};
 
 type ToastMessage = {
   id: number;
   message: string;
   kind: ToastKind;
   exiting: boolean;
+  title?: string;
+  key?: string;
+  actions?: ToastAction[];
+  persistent: boolean;
 };
 
 type ToastContextValue = {
-  showToast: (message: string, kind?: ToastKind, duration?: number) => void;
+  showToast: (message: string, kind?: ToastKind, duration?: number, options?: ToastOptions) => void;
+  dismissToastByKey: (key: string) => void;
+};
+
+const toastTitles: Record<ToastKind, string> = {
+  success: 'Done',
+  error: 'Something went wrong',
+  info: 'Heads up',
+  warning: 'Please note',
 };
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -38,10 +62,24 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     timers.current.set(id, removeTimer);
   }, []);
 
-  const showToast = useCallback((message: string, kind: ToastKind = 'success', duration = 4200) => {
+  const toastsRef = useRef<ToastMessage[]>([]);
+  toastsRef.current = toasts;
+
+  const showToast = useCallback((message: string, kind: ToastKind = 'success', duration = 4200, options: ToastOptions = {}) => {
+    if (options.key && toastsRef.current.some((toast) => toast.key === options.key && !toast.exiting)) return;
     const id = ++nextToastId;
-    setToasts((current) => [...current.slice(-2), { id, message, kind, exiting: false }]);
-    timers.current.set(id, window.setTimeout(() => dismissToast(id), duration));
+    const persistent = duration <= 0;
+    const toast: ToastMessage = { id, message, kind, exiting: false, persistent, title: options.title, key: options.key, actions: options.actions };
+    setToasts((current) => [
+      ...current.filter((item) => item.persistent),
+      ...current.filter((item) => !item.persistent).slice(-2),
+      toast,
+    ]);
+    if (!persistent) timers.current.set(id, window.setTimeout(() => dismissToast(id), duration));
+  }, [dismissToast]);
+
+  const dismissToastByKey = useCallback((key: string) => {
+    toastsRef.current.filter((toast) => toast.key === key && !toast.exiting).forEach((toast) => dismissToast(toast.id));
   }, [dismissToast]);
 
   useEffect(() => () => {
@@ -50,7 +88,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, dismissToastByKey }}>
       {children}
       <div className="toast-viewport" aria-label="Notifications">
         {toasts.map((toast) => (
@@ -61,18 +99,39 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             aria-live={toast.kind === 'error' ? 'assertive' : 'polite'}
           >
             <span className="global-toast__mark" aria-hidden="true">
-              {toast.kind === 'success' ? <Check size={15} strokeWidth={2.2} />
-                : toast.kind === 'error' ? <CircleAlert size={15} strokeWidth={2.2} />
-                  : <Info size={15} strokeWidth={2.2} />}
+              <span className="global-toast__disc">
+                {toast.kind === 'success' ? <Check size={14} strokeWidth={3} />
+                  : toast.kind === 'error' || toast.kind === 'warning' ? '!' : 'i'}
+              </span>
             </span>
-            <span className="global-toast__message">{toast.message}</span>
+            <div className="global-toast__body">
+              <strong className="global-toast__title">{toast.title ?? toastTitles[toast.kind]}</strong>
+              <span className="global-toast__message">{toast.message}</span>
+              {toast.actions && toast.actions.length > 0 && (
+                <div className="global-toast__actions">
+                  {toast.actions.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      className={action.primary ? 'is-primary' : undefined}
+                      onClick={() => {
+                        dismissToast(toast.id);
+                        action.onClick();
+                      }}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               className="global-toast__close"
               type="button"
               aria-label="Dismiss notification"
               onClick={() => dismissToast(toast.id)}
             >
-              ×
+              <X size={18} strokeWidth={1.6} />
             </button>
           </div>
         ))}

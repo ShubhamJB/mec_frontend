@@ -193,6 +193,10 @@ export interface RoadsideRequestItem {
   eta_minutes: number | null;
   accepted_at: string | null;
   customer_contact_confirmed: boolean | null;
+  customer_feedback_resolution: 'RESOLVED' | 'PARTIAL' | 'UNRESOLVED' | null;
+  customer_feedback_rating: number | null;
+  customer_feedback_comment: string | null;
+  customer_feedback_at: string | null;
   owner_calling_at?: string | null;
   call_followup_failed?: boolean;
   decline_reason: string | null;
@@ -212,6 +216,10 @@ export interface GuestRoadsideRequestStatus {
   eta_minutes: number | null;
   accepted_at: string | null;
   customer_contact_confirmed: boolean | null;
+  customer_feedback_resolution: 'RESOLVED' | 'PARTIAL' | 'UNRESOLVED' | null;
+  customer_feedback_rating: number | null;
+  customer_feedback_comment: string | null;
+  customer_feedback_at: string | null;
   owner_calling_at?: string | null;
   call_followup_failed?: boolean;
   updated_at: string;

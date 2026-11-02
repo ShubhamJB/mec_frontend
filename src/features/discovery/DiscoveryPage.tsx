@@ -6,6 +6,17 @@ import { GarageMap } from '../../components/map/GarageMap';
 import { getStoredOrigin, storeOrigin } from '../../lib/userLocation';
 import { apiClient } from '../../api/client';
 import { GarageCardItem, ServiceItem, VehicleTypeItem, PaginatedResponse } from '../../api/types';
+import { StarRating } from '../../components/StarRating';
+import './discovery.css';
+import { FilterChip } from '../../components/FilterChip';
+import { MultiSelect, SingleSelect } from '../../components/Dropdown';
+import { LayoutGrid, List, Map as MapIcon, Search, X } from 'lucide-react';
+
+const GarageThumb: React.FC<{ garage: GarageCardItem; size: number }> = ({ garage, size }) => (
+  <span className="garage-thumb" style={{ width: size, height: size, borderRadius: size > 60 ? 20 : 12 }} aria-hidden="true">
+    {garage.cover_photo_url ? <img src={garage.cover_photo_url} alt="" loading="lazy" /> : <span>{garage.name.charAt(0).toUpperCase()}</span>}
+  </span>
+);
 
 export const DiscoveryPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,6 +43,29 @@ export const DiscoveryPage: React.FC = () => {
   const lng = searchParams.get('longitude');
 
   const [showMap, setShowMap] = useState(true);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    try {
+      return localStorage.getItem('garage_view_mode') === 'table' ? 'table' : 'cards';
+    } catch {
+      return 'cards';
+    }
+  });
+  const [isNarrow, setIsNarrow] = useState(() => window.matchMedia('(max-width: 820px)').matches);
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 820px)');
+    const onChange = (event: MediaQueryListEvent) => setIsNarrow(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+  const activeView = isNarrow ? 'cards' : viewMode;
+  const changeView = (mode: 'cards' | 'table') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('garage_view_mode', mode);
+    } catch {
+      /* ignore storage failures */
+    }
+  };
   const [searchInput, setSearchInput] = useState(search);
   const origin = useMemo(() => {
     if (!lat || !lng) return null;
@@ -158,223 +192,146 @@ export const DiscoveryPage: React.FC = () => {
     setSearchParams(next);
   };
 
+  const renderCall = (garage: GarageCardItem, label = 'Call workshop') => (
+                      <a
+                        href={`tel:${garage.phone}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          apiClient(`/garages/${garage.id}/analytics/call-click`, { method: 'POST' }).catch(() => {});
+                        }}
+                        className="discovery-garage-call"
+                      >
+                        {label}
+                      </a>
+                    );
+
+  const activeFilterCount = (openNow ? 1 : 0) + selectedServices.length + selectedVehicleTypes.length;
+
+  const clearFilters = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('open_now');
+    next.delete('service_ids');
+    next.delete('vehicle_type_ids');
+    next.set('page', '1');
+    setSearchParams(next);
+  };
+
   return (
     <PublicLayout>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '24px' }}>
+      <div className="explore-page">
+        <div className="explore-head">
           <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 600 }}>Explore Garages</h1>
-            <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
-              {totalItems} active {totalItems === 1 ? 'workshop' : 'workshops'} found
+            <h1 className="explore-title">Explore <em>garages</em></h1>
+            <p className="explore-count">
+              <span className="tabular-nums">{totalItems}</span> verified {totalItems === 1 ? 'workshop' : 'workshops'} near you
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => setShowMap((v) => !v)}
-              aria-pressed={showMap}
-              style={{
-                padding: '7px 12px',
-                marginRight: '8px',
-                fontSize: 'var(--step-small)',
-                fontWeight: 500,
-                color: 'var(--ink)',
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-              }}
-            >
-              {showMap ? 'Hide map' : 'Show map'}
+          <div className="explore-controls">
+            {!isNarrow && (
+              <div className="view-toggle" role="group" aria-label="Listing view">
+                <button type="button" className={activeView === 'cards' ? 'is-active' : ''} aria-pressed={activeView === 'cards'} onClick={() => changeView('cards')}>
+                  <LayoutGrid size={15} /> Cards
+                </button>
+                <button type="button" className={activeView === 'table' ? 'is-active' : ''} aria-pressed={activeView === 'table'} onClick={() => changeView('table')}>
+                  <List size={15} /> Table
+                </button>
+              </div>
+            )}
+            <button type="button" className="map-toggle" onClick={() => setShowMap((v) => !v)} aria-pressed={showMap}>
+              <MapIcon size={15} /> {showMap ? 'Hide map' : 'Show map'}
             </button>
-            <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', fontWeight: 500 }}>
-              Sort:
-            </span>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <select
-                value={sortBy}
-                onChange={(e) => updateParam('sort_by', e.target.value)}
-                style={{
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  padding: '7px 32px 7px 12px',
-                  fontSize: 'var(--step-small)',
-                  fontWeight: 500,
-                  color: 'var(--ink)',
-                  backgroundColor: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'border-color 0.15s ease',
-                }}
-              >
-                <option value="highest_rated">Highest Rated</option>
-                <option value="most_reviewed">Most Reviewed</option>
-                {lat && lng && <option value="nearest">Nearest First</option>}
-              </select>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none',
-                  color: 'var(--muted)',
-                }}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            <span className="explore-sort-label">Sort by</span>
+            <SingleSelect
+              label="Sort garages"
+              align="right"
+              value={sortBy}
+              onChange={(value) => updateParam('sort_by', value)}
+              options={[
+                { value: 'highest_rated', label: 'Highest rated' },
+                { value: 'most_reviewed', label: 'Most reviewed' },
+                ...(lat && lng ? [{ value: 'nearest', label: 'Nearest first' }] : []),
+              ]}
+            />
           </div>
         </div>
 
-        <form onSubmit={submitSearch} role="search" style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              aria-hidden="true"
-              style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
-            >
-              <circle cx="7" cy="7" r="4.5" />
-              <path d="M10.5 10.5L14 14" />
-            </svg>
+        <div className="explore-toolbar">
+          <form onSubmit={submitSearch} role="search" className="search-capsule explore-toolbar__search">
+            <Search size={18} strokeWidth={1.8} className="search-capsule__icon" aria-hidden="true" />
             <input
-              type="search"
+              type="text"
               aria-label="Search workshops by name or area"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by workshop name or area, e.g. Patan or Lalitpur"
-              style={{
-                width: '100%',
-                padding: '11px 12px 11px 36px',
-                fontSize: 'var(--step-body)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--card)',
-              }}
+              placeholder="Search by workshop name or area, e.g. Patan"
             />
-          </div>
-          <button
-            type="submit"
-            style={{
-              padding: '0 22px',
-              fontSize: 'var(--step-caption)',
-              fontWeight: 600,
-              color: 'var(--on-dark)',
-              backgroundColor: 'var(--ink)',
-              borderRadius: 'var(--radius-sm)',
-            }}
-          >
-            Search
-          </button>
-        </form>
-        <div style={{ minHeight: '24px', marginBottom: '16px', fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-          {search && (
-            <span>
-              Showing results for <strong style={{ color: 'var(--ink)' }}>&ldquo;{search}&rdquo;</strong>.{' '}
-              <button type="button" onClick={clearSearch} style={{ fontSize: 'inherit', color: 'var(--accent)', textDecoration: 'underline' }}>
-                Clear search
+            {searchInput && (
+              <button type="button" className="search-capsule__clear" aria-label="Clear search text" onClick={clearSearch}>
+                <X size={16} strokeWidth={2} />
               </button>
-            </span>
-          )}
+            )}
+            <button type="submit" className="search-capsule__submit">
+              Search
+            </button>
+          </form>
+
+          <div className="explore-toolbar__filters">
+            <FilterChip
+              label="Open now"
+              checked={openNow}
+              onChange={(checked) => updateParam('open_now', checked ? 'true' : null)}
+            />
+            {vehicleTypes.length > 0 && (
+              <MultiSelect
+                variant="compact"
+                label="Vehicle types"
+                options={vehicleTypes.map((v) => ({ value: v.id, label: v.name }))}
+                values={selectedVehicleTypes}
+                onToggle={(id) => toggleMultiParam('vehicle_type_ids', id)}
+              />
+            )}
+            {services.length > 0 && (
+              <MultiSelect
+                variant="compact"
+                label="Services"
+                options={services.map((s) => ({ value: s.id, label: s.name }))}
+                values={selectedServices}
+                onToggle={(id) => toggleMultiParam('service_ids', id)}
+              />
+            )}
+          </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '32px' }}>
-          {/* Filters Sidebar */}
-          <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Open Now filter */}
-            <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: 'var(--step-caption)' }}>
-                <input
-                  type="checkbox"
-                  checked={openNow}
-                  onChange={(e) => updateParam('open_now', e.target.checked ? 'true' : null)}
-                />
-                <span>Open Now</span>
-              </label>
-            </div>
-
-            {/* Vehicle Types Filter (ANY) */}
-            {vehicleTypes.length > 0 && (
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--step-caption)', fontWeight: 500, marginBottom: '8px' }}>
-                  Vehicle Types
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {vehicleTypes.map((v) => (
-                    <label key={v.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--step-small)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedVehicleTypes.includes(v.id)}
-                        onChange={() => toggleMultiParam('vehicle_type_ids', v.id)}
-                      />
-                      <span>{v.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+        {(activeFilterCount > 0 || search) && (
+          <div className="explore-active">
+            {search && (
+              <span className="dd-tag">
+                &ldquo;{search}&rdquo;
+                <button type="button" aria-label="Clear search" onClick={clearSearch}><X size={12} strokeWidth={3} /></button>
+              </span>
             )}
-
-            {/* Services Filter (ANY) */}
-            {services.length > 0 && (
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--step-caption)', fontWeight: 500, marginBottom: '8px' }}>
-                  Services Offered
-                </label>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
-                    maxHeight: '260px',
-                    overflowY: 'auto',
-                    paddingRight: '8px',
-                    paddingBottom: '2px',
-                    scrollbarWidth: 'thin',
-                  }}
-                >
-                  {services.map((s) => (
-                    <label
-                      key={s.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontSize: 'var(--step-small)',
-                        cursor: 'pointer',
-                        minHeight: '28px',
-                        flexShrink: 0,
-                        padding: '2px 0',
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedServices.includes(s.id)}
-                        onChange={() => toggleMultiParam('service_ids', s.id)}
-                      />
-                      <span style={{ lineHeight: 1.3 }}>{s.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+            {vehicleTypes.filter((v) => selectedVehicleTypes.includes(v.id)).map((v) => (
+              <span key={v.id} className="dd-tag">
+                {v.name}
+                <button type="button" aria-label={`Remove ${v.name}`} onClick={() => toggleMultiParam('vehicle_type_ids', v.id)}><X size={12} strokeWidth={3} /></button>
+              </span>
+            ))}
+            {services.filter((s) => selectedServices.includes(s.id)).map((s) => (
+              <span key={s.id} className="dd-tag">
+                {s.name}
+                <button type="button" aria-label={`Remove ${s.name}`} onClick={() => toggleMultiParam('service_ids', s.id)}><X size={12} strokeWidth={3} /></button>
+              </span>
+            ))}
+            {activeFilterCount > 0 && (
+              <button type="button" className="filter-panel__clear" onClick={clearFilters}>
+                Clear all filters
+              </button>
             )}
-          </aside>
+          </div>
+        )}
+
+        <div>
 
           {/* Garage List Column - Position relative with localized loading overlay that ignores/excludes the side filter */}
           <main
@@ -461,7 +418,7 @@ export const DiscoveryPage: React.FC = () => {
                   onClick={() => fetchGarages()}
                   style={{
                     padding: '8px 16px',
-                    backgroundColor: 'var(--ink)',
+                    backgroundColor: 'var(--accent)',
                     color: 'var(--on-dark)',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: 'var(--step-caption)',
@@ -487,7 +444,7 @@ export const DiscoveryPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="discovery-results-list">
                 {showMap && (
                   <div>
                     <GarageMap
@@ -501,76 +458,99 @@ export const DiscoveryPage: React.FC = () => {
                     </p>
                   </div>
                 )}
-                {garages.map((garage) => (
-                  <div
-                    key={garage.id}
-                    onClick={() => navigate(`/garages/${garage.id}`)}
-                    style={{
-                      backgroundColor: 'var(--surface)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '24px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: '24px',
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-                        <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{garage.name}</h2>
-                        <AvailabilityBadge availability={garage.availability} showDetails />
+{activeView === 'table' ? (
+                  <div className="dt-scope">
+                    <div className="dt-frame">
+                      <div className="discovery-table-scroll">
+                        <table className="dt discovery-table">
+                          <thead>
+                            <tr>
+                              <th>Garage</th>
+                              <th>Status</th>
+                              <th>Rating</th>
+                              <th>Distance</th>
+                              <th>Services</th>
+                              <th>Contact</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {garages.map((garage) => (
+                              <tr key={garage.id} className="discovery-table-row" onClick={() => navigate(`/garages/${garage.id}`)}>
+                                <td>
+                                  <div className="discovery-table-garage">
+                                    <GarageThumb garage={garage} size={44} />
+                                    <div>
+                                      <span className="dt-primary">{garage.name}</span>
+                                      <span className="dt-sub">{garage.address || 'Address registered on file'}</span>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td><AvailabilityBadge availability={garage.availability} /></td>
+                                <td>
+                                  {garage.average_rating !== null && garage.average_rating !== undefined ? (
+                                    <span className="discovery-rating-summary"><StarRating rating={garage.average_rating} size="small" /><span>({garage.review_count})</span></span>
+                                  ) : (
+                                    <span className="dt-muted">No reviews</span>
+                                  )}
+                                </td>
+                                <td className="tabular-nums dt-muted">
+                                  {garage.distance_km !== undefined && garage.distance_km !== null ? `${garage.distance_km.toFixed(1)} km` : '—'}
+                                </td>
+                                <td className="dt-muted">
+                                  {garage.services && garage.services.length > 0
+                                    ? `${garage.services.slice(0, 2).map((service) => service.name).join(', ')}${garage.services.length > 2 ? ` +${garage.services.length - 2}` : ''}`
+                                    : '—'}
+                                </td>
+                                <td>
+                                  <div className="discovery-table-contact">
+                                    {renderCall(garage, 'Call')}
+                                    <span className="dt-sub tabular-nums">{garage.phone}</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
+                    </div>
+                  </div>
+                ) : (
+                  garages.map((garage) => (
+                    <div
+                      key={garage.id}
+                      onClick={() => navigate(`/garages/${garage.id}`)}
+                      className="discovery-garage-card"
+                    >
+                      <GarageThumb garage={garage} size={96} />
+                      <div className="discovery-garage-main">
+                        <h2>{garage.name}</h2>
+                        <div className="discovery-garage-availability"><AvailabilityBadge availability={garage.availability} showDetails /></div>
 
-                      <p style={{ color: 'var(--muted)', fontSize: 'var(--step-small)', marginBottom: '12px' }}>
-                        {garage.address || 'Address registered on file'}
-                        {garage.distance_km !== undefined && garage.distance_km !== null && (
-                          <span className="tabular-nums" style={{ marginLeft: '8px', fontWeight: 500 }}>
-                            • {garage.distance_km.toFixed(1)} km away
-                          </span>
-                        )}
-                      </p>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: 'var(--step-caption)' }}>
-                        <div>
-                          {garage.average_rating ? (
-                            <span>
-                              <strong>{garage.average_rating.toFixed(1)}</strong> out of 5 ({garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'})
+                        <p className="discovery-garage-address">
+                          {garage.address || 'Address registered on file'}
+                          {garage.distance_km !== undefined && garage.distance_km !== null && (
+                            <span className="tabular-nums discovery-garage-distance">
+                              • {garage.distance_km.toFixed(1)} km away
                             </span>
+                          )}
+                        </p>
+
+                        <div className="discovery-garage-rating">
+                          {garage.average_rating !== null && garage.average_rating !== undefined ? (
+                            <span className="discovery-rating-summary"><StarRating rating={garage.average_rating} size="small" /><span>{garage.review_count} {garage.review_count === 1 ? 'review' : 'reviews'}</span></span>
                           ) : (
                             <span style={{ color: 'var(--muted)' }}>No reviews yet</span>
                           )}
                         </div>
                       </div>
-                    </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-                      <a
-                        href={`tel:${garage.phone}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          apiClient(`/garages/${garage.id}/analytics/call-click`, { method: 'POST' }).catch(() => {});
-                        }}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: 'var(--ink)',
-                          color: 'var(--on-dark)',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: 'var(--step-caption)',
-                          fontWeight: 500,
-                          textAlign: 'center',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Call Workshop
-                      </a>
-                      <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }} className="tabular-nums">
-                        {garage.phone}
-                      </span>
+                      <div className="discovery-garage-actions">
+                        {renderCall(garage)}
+                        <span className="tabular-nums discovery-garage-phone">{garage.phone}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
 
                 {/* Pagination (Windowed [1, 2, 3] with disabled < and >) */}
                 {totalPages > 1 && (
@@ -635,7 +615,7 @@ export const DiscoveryPage: React.FC = () => {
                               minWidth: '36px',
                               height: '36px',
                               borderRadius: 'var(--radius-sm)',
-                              backgroundColor: isActive ? 'var(--ink)' : 'var(--surface)',
+                              backgroundColor: isActive ? 'var(--accent)' : 'var(--surface)',
                               color: isActive ? 'var(--on-dark)' : 'var(--ink)',
                               border: '1px solid var(--border)',
                               fontWeight: isActive ? 600 : 500,

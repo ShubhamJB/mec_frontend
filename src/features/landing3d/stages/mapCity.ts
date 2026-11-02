@@ -8,6 +8,7 @@ import { damp, labelTexture, lerp, metal, range, seeded, smooth } from '../util'
 const SCALE_M = 400;
 const RADIUS = 16;
 const HALF_H = (RADIUS * Math.sqrt(3)) / 2;
+const starsFor = (rating: number) => '★'.repeat(Math.max(1, Math.min(5, Math.round(rating))));
 
 const toLocal = (lat: number, lng: number) => ({
   x: ((lng - ORIGIN.lng) * 111320 * Math.cos((ORIGIN.lat * Math.PI) / 180)) / SCALE_M,
@@ -116,10 +117,10 @@ export function createMapStage(ctx: StageContext): Stage {
     const topTexture = labelTexture(THREE, (c, size) => {
       c.clearRect(0, 0, size, size);
       c.fillStyle = '#ffffff';
-      c.font = `700 ${size * 0.42}px sans-serif`;
+      c.font = `700 ${size * 0.22}px sans-serif`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';
-      c.fillText(garage.rating.toFixed(1), size / 2, size / 2);
+      c.fillText(starsFor(garage.rating), size / 2, size / 2);
     });
     const label = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: topTexture, transparent: true }));
     label.rotation.x = -Math.PI / 2;
@@ -155,7 +156,7 @@ export function createMapStage(ctx: StageContext): Stage {
     const km = haversineKm(ORIGIN.lat, ORIGIN.lng, g.latitude, g.longitude);
     return {
       title: g.name,
-      lines: [g.area, `${g.rating.toFixed(1)} out of 5 from ${g.reviews} reviews`, `${STATUS_LABEL[g.status]} · ${g.note}`, `${km.toFixed(1)} km from you, in a straight line`],
+      lines: [g.area, `${starsFor(g.rating)} · ${g.reviews} reviews`, `${STATUS_LABEL[g.status]} · ${g.note}`, `${km.toFixed(1)} km from you, in a straight line`],
       anchor: pin.group.localToWorld(new THREE.Vector3(0, pin.height + 0.9, 0)),
     };
   };

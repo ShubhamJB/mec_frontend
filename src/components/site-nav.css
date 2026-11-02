@@ -1,0 +1,31 @@
+.site-nav { position: sticky; top: 0; z-index: 1000; width: 100%; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+.site-nav--transparent { position: relative; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 0; }
+.site-nav__inner { display: flex; align-items: center; gap: 28px; width: 100%; max-width: 1200px; height: 72px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
+.site-nav__brand { display: flex; align-items: center; gap: 10px; flex: none; font-family: var(--font-serif); font-size: 22px; letter-spacing: -0.015em; color: var(--ink); }
+.site-nav__links { display: flex; align-items: center; gap: 4px; flex: 1; }
+.site-nav__link { display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 9999px; color: var(--muted); font-size: 15px; font-weight: 450; transition: background-color 150ms ease, color 150ms ease; }
+.site-nav__link:hover { color: var(--ink); background: rgba(74, 85, 224, .08); }
+.site-nav__link.is-active { color: var(--accent); background: var(--tint, #e6e8fb); }
+.site-nav__actions { display: flex; align-items: center; gap: 10px; flex: none; }
+.site-nav__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 22px; border: 1px solid var(--accent); border-radius: 9999px !important; font-size: 15px; font-weight: 480; transition: background-color 150ms ease, color 150ms ease; }
+.site-nav__btn--ghost { background: transparent; color: var(--accent); }
+.site-nav__btn--ghost:hover { background: var(--tint, #e6e8fb); }
+.site-nav__btn--primary { background: var(--accent); color: #fff; }
+.site-nav__btn--primary:hover { background: var(--accent-strong); }
+.site-nav__icon { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--border); border-radius: 9999px; color: var(--ink); transition: background-color 150ms ease; }
+.site-nav__icon:hover { background: var(--surface); }
+.site-nav__avatar { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 9999px; background: var(--tint, #e6e8fb); color: var(--tint-ink, #2f37b0); font-size: 14px; font-weight: 600; }
+@media (max-width: 760px) {
+  .site-nav__inner { gap: 12px; padding: 0 16px; }
+  .site-nav__brand span { display: none; }
+  .site-nav__links { overflow-x: auto; scrollbar-width: none; }
+  .site-nav__btn { padding: 0 16px; }
+  .site-nav__avatar { display: none; }
+}
+
+.site-footer { margin-top: 48px; border-top: 1px solid var(--rule); }
+.site-footer__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; max-width: 1200px; margin: 0 auto; padding: 24px; box-sizing: border-box; color: var(--muted); font-size: 14px; }
+
+.site-nav--floating { position: fixed; left: 0; right: 0; z-index: 40; }
+.site-nav__link { background: transparent; border: 0; cursor: pointer; }
+button.site-nav__link { border-radius: 9999px !important; }

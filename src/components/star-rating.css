@@ -1,0 +1,13 @@
+.star-rating { position: relative; display: inline-block; flex: none; overflow: hidden; color: var(--border); font-family: Arial, sans-serif; letter-spacing: 1px; line-height: 1; white-space: nowrap; }
+.star-rating-track { display: block; }
+.star-rating-fill { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: #d29a27; white-space: nowrap; }
+.star-rating.is-small { font-size: 13px; }
+.star-rating.is-medium { font-size: 16px; }
+.star-rating.is-large { font-size: 21px; }
+.star-rating-picker { display: flex; align-items: center; gap: 5px; }
+.star-rating-picker button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--border); border-radius: 7px; color: #b5bbc5; background: var(--card); cursor: pointer; transition: color 130ms ease, border-color 130ms ease, background-color 130ms ease, transform 130ms ease; }
+.star-rating-picker button:hover { transform: translateY(-1px); border-color: #d29a27; color: #d29a27; }
+.star-rating-picker button[aria-checked="true"] { border-color: color-mix(in srgb, #d29a27 52%, var(--border)); color: #d29a27; background: color-mix(in srgb, #d29a27 9%, var(--card)); }
+.star-rating-picker button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.star-rating-picker-label { margin-left: 7px; color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .star-rating-picker button { transition: none; } }

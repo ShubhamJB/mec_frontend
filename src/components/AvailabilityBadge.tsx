@@ -61,12 +61,12 @@ export const AvailabilityBadge: React.FC<{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          padding: '2px 8px',
+          padding: '3px 12px 3px 10px',
           fontSize: 'var(--step-small)',
           fontWeight: 500,
           backgroundColor: bg,
           color: ink,
-          borderRadius: 'var(--radius-sm)',
+          borderRadius: '9999px',
           width: 'fit-content',
         }}
       >

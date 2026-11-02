@@ -201,6 +201,7 @@
 .fym-popup-meta {
   color: var(--muted);
 }
+.fym-popup-rating { display: flex; align-items: center; gap: 7px; }
 
 .fym-popup-action {
   display: block;

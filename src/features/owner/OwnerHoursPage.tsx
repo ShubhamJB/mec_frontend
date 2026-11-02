@@ -4,6 +4,7 @@ import { AppShell } from '../../components/AppShell';
 import { ApiError, apiClient } from '../../api/client';
 import { OperatingHoursItem } from '../../api/types';
 import { ownerNavItems } from './ownerNav';
+import './owner-hours.css';
 
 const DAYS = [
   { id: 1, name: 'Monday' },
@@ -34,22 +35,6 @@ const formatClock = (time: string | null) => {
   const suffix = hour >= 12 ? 'PM' : 'AM';
   return `${hour % 12 || 12}:${String(minute).padStart(2, '0')} ${suffix}`;
 };
-
-const outlineButton: React.CSSProperties = {
-  padding: '6px 12px',
-  fontSize: 'var(--step-small)',
-  border: '1px solid var(--border)',
-  borderRadius: 'var(--radius-sm)',
-  backgroundColor: 'var(--card)',
-  cursor: 'pointer',
-};
-
-const timeInput = (disabled: boolean): React.CSSProperties => ({
-  padding: '6px 8px',
-  border: '1px solid var(--border)',
-  borderRadius: 'var(--radius-sm)',
-  backgroundColor: disabled ? 'transparent' : 'var(--card)',
-});
 
 export const OwnerHoursPage: React.FC = () => {
   const navigate = useNavigate();
@@ -178,84 +163,57 @@ export const OwnerHoursPage: React.FC = () => {
 
   const headerAction =
     isLoading || loadFailed ? null : isEditing ? (
-      <button type="button" onClick={cancelEditing} disabled={isSaving} style={outlineButton}>
+      <button type="button" className="c-btn c-btn--ghost" onClick={cancelEditing} disabled={isSaving}>
         Cancel
       </button>
     ) : (
-      <button
-        type="button"
-        onClick={startEditing}
-        style={{ ...outlineButton, backgroundColor: 'var(--ink)', color: 'var(--on-dark)', borderColor: 'var(--ink)', fontWeight: 500 }}
-      >
+      <button type="button" className="c-btn" onClick={startEditing}>
         Edit schedule
       </button>
     );
 
   return (
     <AppShell title="Weekly Schedule" navItems={ownerNavItems} actions={headerAction}>
-      <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-        <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)', marginBottom: '24px' }}>
+      <div className="hrs-page">
+        <p className="hrs-intro">
           {isEditing
             ? "Set your opening and closing time for each day. Times use your garage's local timezone."
             : 'This is the schedule customers see on your listing. Click Edit schedule to change it.'}
         </p>
 
         {notice && (
-          <div
-            role={notice.kind === 'error' ? 'alert' : 'status'}
-            style={{
-              padding: '12px',
-              backgroundColor: notice.kind === 'ok' ? 'var(--status-open-bg)' : 'var(--status-danger-bg)',
-              color: notice.kind === 'ok' ? 'var(--status-open-ink)' : 'var(--status-danger-ink)',
-              fontSize: 'var(--step-small)',
-              borderRadius: 'var(--radius-sm)',
-              marginBottom: '20px',
-            }}
-          >
+          <div role={notice.kind === 'error' ? 'alert' : 'status'} className={`hrs-notice ${notice.kind === 'ok' ? 'is-ok' : 'is-error'}`}>
             {notice.text}
           </div>
         )}
 
         {isEditing && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>Quick setup:</span>
-            <button type="button" onClick={copyMondayToAllDays} style={outlineButton}>
+          <div className="hrs-quick">
+            <span>Quick setup</span>
+            <button type="button" className="c-btn c-btn--ghost c-btn--sm" onClick={copyMondayToAllDays}>
               Use Monday&apos;s hours every day
             </button>
-            <button type="button" onClick={closeWeekend} style={outlineButton}>
+            <button type="button" className="c-btn c-btn--ghost c-btn--sm" onClick={closeWeekend}>
               Close Saturday &amp; Sunday
             </button>
           </div>
         )}
 
         {isLoading ? (
-          <div style={{ color: 'var(--muted)' }}>Loading your saved schedule...</div>
+          <div className="hrs-intro">Loading your saved schedule...</div>
         ) : loadFailed ? null : (
           <form onSubmit={handleSave}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+            <div className="hrs-days">
               {DAYS.map((d) => {
                 const item = hours.find((h) => h.day_of_week === d.id);
                 if (!item) return null;
                 return (
-                  <div
-                    key={d.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 16px',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
-                      backgroundColor: item.is_closed ? 'var(--rule)' : 'var(--card)',
-                    }}
-                  >
-                    <div style={{ width: '120px', fontWeight: 500, fontSize: 'var(--step-caption)' }}>{d.name}</div>
+                  <div key={d.id} className={`hrs-day${item.is_closed ? ' is-closed' : ''}`}>
+                    <div className="hrs-day__name">{d.name}</div>
 
                     {isEditing ? (
                       <>
-                        <label
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--step-small)', cursor: 'pointer' }}
-                        >
+                        <label className="hrs-closed">
                           <input
                             type="checkbox"
                             checked={item.is_closed}
@@ -264,34 +222,26 @@ export const OwnerHoursPage: React.FC = () => {
                           <span>Closed</span>
                         </label>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="hrs-times">
                           <input
                             type="time"
                             aria-label={`${d.name} opening time`}
                             disabled={item.is_closed}
                             value={item.opening_time || ''}
                             onChange={(e) => handleDayChange(d.id, 'opening_time', e.target.value)}
-                            style={timeInput(item.is_closed)}
                           />
-                          <span style={{ color: 'var(--muted)', fontSize: 'var(--step-small)' }}>to</span>
+                          <span>to</span>
                           <input
                             type="time"
                             aria-label={`${d.name} closing time`}
                             disabled={item.is_closed}
                             value={item.closing_time || ''}
                             onChange={(e) => handleDayChange(d.id, 'closing_time', e.target.value)}
-                            style={timeInput(item.is_closed)}
                           />
                         </div>
                       </>
                     ) : (
-                      <div
-                        className="tabular-nums"
-                        style={{
-                          fontSize: 'var(--step-caption)',
-                          color: item.is_closed ? 'var(--muted)' : 'var(--ink)',
-                        }}
-                      >
+                      <div className={`hrs-day__time tabular-nums${item.is_closed ? ' is-muted' : ''}`}>
                         {item.is_closed ? 'Closed' : `${formatClock(item.opening_time)} – ${formatClock(item.closing_time)}`}
                       </div>
                     )}
@@ -301,25 +251,14 @@ export const OwnerHoursPage: React.FC = () => {
             </div>
 
             {isEditing && (
-              <button
-                type="submit"
-                disabled={isSaving}
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: 'var(--ink)',
-                  color: 'var(--on-dark)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: 'var(--step-caption)',
-                }}
-              >
+              <button type="submit" className="c-btn" disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save schedule'}
               </button>
             )}
 
-            <p style={{ marginTop: '16px', fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
+            <p className="hrs-foot">
               Closing for a day or an emergency? Use{' '}
-              <Link to="/owner" style={{ textDecoration: 'underline' }}>
+              <Link to="/owner">
                 Close for now
               </Link>{' '}
               on the dashboard instead of changing this schedule.

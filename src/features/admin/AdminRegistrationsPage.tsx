@@ -199,55 +199,39 @@ export const AdminRegistrationsPage: React.FC = () => {
       )}
 
       {/* State filter tabs */}
-      <div
-        ref={tableTopRef}
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          borderBottom: '1px solid var(--border)',
-          marginBottom: '20px',
-          scrollMarginTop: '20px',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '16px' }}>
+      <div ref={tableTopRef} className="dt-toolbar" style={{ scrollMarginTop: '20px' }}>
+        <div className="dt-tabs">
           {(['PENDING', 'APPROVED', 'REJECTED', ''] as const).map((st) => {
             const isActive = statusFilter === st;
             return (
               <button
                 key={st}
                 onClick={() => handleTabChange(st)}
-                style={{
-                  padding: '8px 4px',
-                  fontSize: 'var(--step-caption)',
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'var(--ink)' : 'var(--muted)',
-                  borderBottom: isActive ? '2px solid var(--ink)' : '2px solid transparent',
-                  cursor: 'pointer',
-                }}
+                className={`dt-tab${isActive ? ' is-active' : ''}`}
               >
-                {st === '' ? 'All Statuses' : st}
+                {st === '' ? 'All statuses' : st.charAt(0) + st.slice(1).toLowerCase()}
+                {isActive && totalItems > 0 && <span className="dt-tab-count tabular-nums">{totalItems}</span>}
               </button>
             );
           })}
         </div>
 
         {totalItems > 0 && (
-          <div style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', paddingBottom: '8px' }}>
+          <div className="dt-total">
             {totalItems} total {totalItems === 1 ? 'submission' : 'submissions'}
           </div>
         )}
       </div>
 
       {!isLoading && items.length === 0 ? (
-        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
+        <div className="dt-empty">
           No garage registrations found matching {statusFilter ? `"${statusFilter}"` : 'any filter'}.
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: selectedReg ? '1fr 380px' : '1fr', gap: '24px' }}>
           {/* Table Container */}
           <div>
-            <div style={{ position: 'relative', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', minHeight: '160px' }}>
+            <div className="dt-frame">
               {/* Localized Table Dimming & Spinner Overlay */}
               {isLoading && (
                 <div
@@ -297,25 +281,22 @@ export const AdminRegistrationsPage: React.FC = () => {
               )}
 
               <table
+                className="dt"
                 style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  textAlign: 'left',
-                  fontSize: 'var(--step-caption)',
                   opacity: isLoading ? 0.35 : 1,
                   transition: 'opacity 0.15s ease',
                   pointerEvents: isLoading ? 'none' : 'auto',
                 }}
               >
                 <thead>
-                  <tr style={{ backgroundColor: 'var(--rule)', color: 'var(--ink-secondary)', fontSize: '12px' }}>
-                    <th style={{ padding: '10px 14px' }}>Workshop</th>
-                    <th style={{ padding: '10px 14px' }}>Owner</th>
-                    <th style={{ padding: '10px 14px' }}>Address</th>
-                    <th style={{ padding: '10px 14px' }}>Version</th>
-                    <th style={{ padding: '10px 14px' }}>Submitted</th>
-                    <th style={{ padding: '10px 14px' }}>Status</th>
-                    <th style={{ padding: '10px 14px' }}>Action</th>
+                  <tr>
+                    <th>Workshop</th>
+                    <th>Owner</th>
+                    <th>Address</th>
+                    <th>Version</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -324,57 +305,37 @@ export const AdminRegistrationsPage: React.FC = () => {
                     return (
                       <tr
                         key={row.garage_id || row.id}
-                        style={{
-                          borderTop: '1px solid var(--rule)',
-                          backgroundColor: selectedReg?.garage_id === row.garage_id ? 'var(--surface-raised)' : 'transparent',
-                        }}
+                        className={selectedReg?.garage_id === row.garage_id ? 'is-selected' : undefined}
                       >
-                        <td style={{ padding: '12px 14px', fontWeight: 500 }}>{displayName}</td>
-                        <td style={{ padding: '12px 14px' }}>
+                        <td className="dt-primary">{displayName}</td>
+                        <td>
                           <div>{row.owner_name}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{row.owner_email}</div>
+                          <span className="dt-sub">{row.owner_email}</span>
                         </td>
-                        <td style={{ padding: '12px 14px', color: 'var(--ink-secondary)' }}>{row.address}</td>
-                        <td style={{ padding: '12px 14px' }} className="tabular-nums">v{row.registration_version}</td>
-                        <td style={{ padding: '12px 14px', fontSize: '12px' }} className="tabular-nums">
+                        <td className="dt-muted">{row.address}</td>
+                        <td className="tabular-nums">v{row.registration_version}</td>
+                        <td className="tabular-nums dt-muted">
                           {row.submitted_at ? new Date(row.submitted_at).toLocaleDateString() : '—'}
                         </td>
-                        <td style={{ padding: '12px 14px' }}>
+                        <td>
                           <span
-                            style={{
-                              fontSize: '11px',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontWeight: 500,
-                              backgroundColor:
-                                row.approval_status === 'APPROVED'
-                                ? 'var(--status-open-bg)'
+                            className={`dt-chip ${
+                              row.approval_status === 'APPROVED'
+                                ? 'is-ok'
                                 : row.approval_status === 'PENDING'
-                                ? 'var(--status-unavail-bg)'
-                                : 'var(--status-danger-bg)',
-                              color:
-                                row.approval_status === 'APPROVED'
-                                ? 'var(--status-open-ink)'
-                                : row.approval_status === 'PENDING'
-                                ? 'var(--status-unavail-ink)'
-                                : 'var(--status-danger-ink)',
-                            }}
+                                  ? 'is-warn'
+                                  : 'is-bad'
+                            }`}
                           >
-                            {row.approval_status}
+                            {row.approval_status.charAt(0) + row.approval_status.slice(1).toLowerCase()}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 14px' }}>
+                        <td>
                           <button
+                            className="dt-action"
                             onClick={() => {
                               setSelectedReg(row);
                               setActionError(null);
-                            }}
-                            style={{
-                              fontSize: 'var(--step-small)',
-                              color: 'var(--accent)',
-                              fontWeight: 500,
-                              textDecoration: 'underline',
-                              cursor: 'pointer',
                             }}
                           >
                             {row.approval_status === 'PENDING' ? 'Review' : 'View'}
@@ -389,51 +350,21 @@ export const AdminRegistrationsPage: React.FC = () => {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                  marginTop: '20px',
-                  padding: '4px 0',
-                  opacity: isLoading ? 0.6 : 1,
-                  pointerEvents: isLoading ? 'none' : 'auto',
-                  transition: 'opacity 0.15s ease',
-                }}
-              >
-                <div style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
+              <div className={`dt-pager${isLoading ? ' is-loading' : ''}`}>
+                <div className="dt-pager-info">
                   Showing {(page - 1) * limit + 1}–{Math.min(page * limit, totalItems)} of {totalItems}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {/* Previous Button */}
+                <div className="dt-pager-pages">
                   <button
+                    className="dt-page-btn"
                     onClick={() => goToPage(page - 1)}
                     disabled={page <= 1}
                     aria-label="Previous page"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '34px',
-                      height: '34px',
-                      padding: '0 8px',
-                      borderRadius: 'var(--radius-sm)',
-                      backgroundColor: 'var(--surface)',
-                      color: page <= 1 ? 'var(--rule)' : 'var(--ink)',
-                      border: '1px solid var(--border)',
-                      cursor: page <= 1 ? 'not-allowed' : 'pointer',
-                      opacity: page <= 1 ? 0.5 : 1,
-                      fontSize: '13px',
-                      fontWeight: 600,
-                    }}
                   >
-                    &lt;
+                    &lsaquo;
                   </button>
 
-                  {/* Windowed Numbers */}
                   {(() => {
                     const windowSize = 3;
                     let start = Math.max(1, page - 1);
@@ -449,54 +380,24 @@ export const AdminRegistrationsPage: React.FC = () => {
                       pagesToShow.push(p);
                     }
 
-                    return pagesToShow.map((p) => {
-                      const isActive = p === page;
-                      return (
-                        <button
-                          key={p}
-                          onClick={() => goToPage(p)}
-                          className="tabular-nums"
-                          style={{
-                            minWidth: '34px',
-                            height: '34px',
-                            borderRadius: 'var(--radius-sm)',
-                            backgroundColor: isActive ? 'var(--ink)' : 'var(--surface)',
-                            color: isActive ? 'var(--on-dark)' : 'var(--ink)',
-                            border: '1px solid var(--border)',
-                            fontWeight: isActive ? 600 : 500,
-                            fontSize: 'var(--step-small)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {p}
-                        </button>
-                      );
-                    });
+                    return pagesToShow.map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => goToPage(p)}
+                        className={`dt-page-btn tabular-nums${p === page ? ' is-active' : ''}`}
+                      >
+                        {p}
+                      </button>
+                    ));
                   })()}
 
-                  {/* Next Button */}
                   <button
+                    className="dt-page-btn"
                     onClick={() => goToPage(page + 1)}
                     disabled={page >= totalPages}
                     aria-label="Next page"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '34px',
-                      height: '34px',
-                      padding: '0 8px',
-                      borderRadius: 'var(--radius-sm)',
-                      backgroundColor: 'var(--surface)',
-                      color: page >= totalPages ? 'var(--rule)' : 'var(--ink)',
-                      border: '1px solid var(--border)',
-                      cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-                      opacity: page >= totalPages ? 0.5 : 1,
-                      fontSize: '13px',
-                      fontWeight: 600,
-                    }}
                   >
-                    &gt;
+                    &rsaquo;
                   </button>
                 </div>
               </div>

@@ -1,4 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Building2,
+  ClipboardCheck,
+  FilePenLine,
+  Flag,
+  LayoutDashboard,
+  ScrollText,
+  UsersRound,
+} from 'lucide-react';
 import { AppShell } from '../../components/AppShell';
 import { apiClient } from '../../api/client';
 import { AdminDashboardCounts } from '../../api/types';
@@ -31,165 +41,81 @@ export const AdminDashboardPage: React.FC = () => {
   const totalCalls = counts?.total_call_clicks ?? counts?.call_clicks_count ?? 0;
 
   const navItems = [
-    { label: 'Overview', path: '/admin' },
-    { label: 'Garage Registrations', path: '/admin/registrations', count: pendingRegs },
-    { label: 'Profile Changes', path: '/admin/profile-changes', count: pendingProfile },
-    { label: 'Garages', path: '/admin/garages' },
-    { label: 'Users', path: '/admin/users' },
-    { label: 'Review Reports', path: '/admin/reports', count: pendingReports },
-    { label: 'Audit Log', path: '/admin/audit' },
+    { label: 'Overview', path: '/admin', icon: LayoutDashboard },
+    { label: 'Garage Registrations', path: '/admin/registrations', count: pendingRegs, icon: ClipboardCheck },
+    { label: 'Profile Changes', path: '/admin/profile-changes', count: pendingProfile, icon: FilePenLine },
+    { label: 'Garages', path: '/admin/garages', icon: Building2 },
+    { label: 'Users', path: '/admin/users', icon: UsersRound },
+    { label: 'Review Reports', path: '/admin/reports', count: pendingReports, icon: Flag },
+    { label: 'Audit Log', path: '/admin/audit', icon: ScrollText },
+  ];
+
+  const show = (value: number) => (isLoading ? '—' : value.toLocaleString());
+
+  const queues = [
+    {
+      to: '/admin/registrations',
+      label: 'New garage submissions',
+      value: pendingRegs,
+      note: 'Awaiting verification and decision',
+      cta: 'Review submissions',
+      tone: 'c-card--tint',
+    },
+    {
+      to: '/admin/profile-changes',
+      label: 'Critical profile edits',
+      value: pendingProfile,
+      note: 'Name, address or coordinate changes',
+      cta: 'Review edits',
+      tone: '',
+    },
+    {
+      to: '/admin/reports',
+      label: 'Customer review reports',
+      value: pendingReports,
+      note: 'Flagged for spam or abuse',
+      cta: 'Open reports',
+      tone: '',
+    },
+  ];
+
+  const stats = [
+    { label: 'Registered users', value: totalUsers },
+    { label: 'Total garages', value: totalGarages },
+    { label: 'Approved garages', value: approvedGarages },
+    { label: 'Total reviews', value: totalReviews },
+    { label: 'Driver call taps', value: totalCalls },
   ];
 
   return (
-    <AppShell title="Moderation & System Overview" scopeName="Admin Console" navItems={navItems}>
-      <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)', marginBottom: '24px' }}>
-        Pending moderation queues take operational priority over aggregate totals.
-      </p>
+    <AppShell title="Moderation & System Overview" scopeName="Admin console" navItems={navItems}>
+      {errorMsg && <div className="c-alert">{errorMsg}</div>}
 
-      {errorMsg && (
-        <div
-          style={{
-            padding: '12px 16px',
-            backgroundColor: 'var(--status-danger-bg)',
-            color: 'var(--status-danger-ink)',
-            borderRadius: 'var(--radius-sm)',
-            marginBottom: '20px',
-            fontSize: 'var(--step-small)',
-          }}
-        >
-          {errorMsg}
+      <section className="c-section">
+        <p className="c-eyebrow">Pending queues take priority over totals</p>
+        <div className="c-grid c-grid--3">
+          {queues.map((queue) => (
+            <Link key={queue.to} to={queue.to} className={`c-card ${queue.tone}`}>
+              <span className="c-label">{queue.label}</span>
+              <span className="c-num tabular-nums">{show(queue.value)}</span>
+              <span className="c-note">{queue.note}</span>
+              <span className="c-link">{queue.cta} &rarr;</span>
+            </Link>
+          ))}
         </div>
-      )}
+      </section>
 
-      {/* Action Queues Section */}
-      <h2 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted)' }}>
-        Pending Action Queues
-      </h2>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'var(--card)',
-          marginBottom: '36px',
-        }}
-      >
-        <a
-          href="/admin/registrations"
-          style={{
-            padding: '20px',
-            borderRight: '1px solid var(--rule)',
-            display: 'block',
-          }}
-        >
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            New Garage Submissions
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '28px', fontWeight: 500, color: pendingRegs ? 'var(--accent)' : 'inherit' }}>
-            {isLoading ? '—' : pendingRegs}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
-            Awaiting verification & decision
-          </span>
-        </a>
-
-        <a
-          href="/admin/profile-changes"
-          style={{
-            padding: '20px',
-            borderRight: '1px solid var(--rule)',
-            display: 'block',
-          }}
-        >
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Critical Profile Edits
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '28px', fontWeight: 500 }}>
-            {isLoading ? '—' : pendingProfile}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
-            Name, address or coordinate changes
-          </span>
-        </a>
-
-        <a
-          href="/admin/reports"
-          style={{
-            padding: '20px',
-            display: 'block',
-          }}
-        >
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Customer Review Reports
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '28px', fontWeight: 500, color: pendingReports ? 'var(--status-danger-ink)' : 'inherit' }}>
-            {isLoading ? '—' : pendingReports}
-          </span>
-          <span style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
-            Flagged for spam or abuse
-          </span>
-        </a>
-      </div>
-
-      {/* Aggregate Totals */}
-      <h2 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted)' }}>
-        Platform Statistics
-      </h2>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'var(--card)',
-        }}
-      >
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Registered Users
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 500 }}>
-            {isLoading ? '—' : totalUsers}
-          </span>
+      <section className="c-section">
+        <p className="c-eyebrow">Platform statistics</p>
+        <div className="c-grid c-grid--5">
+          {stats.map((stat) => (
+            <div key={stat.label} className="c-card c-card--white">
+              <span className="c-label">{stat.label}</span>
+              <span className="c-num c-num--sm tabular-nums">{show(stat.value)}</span>
+            </div>
+          ))}
         </div>
-
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Total Garages
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 500 }}>
-            {isLoading ? '—' : totalGarages}
-          </span>
-        </div>
-
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Approved Garages
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 500, color: 'var(--status-open-ink)' }}>
-            {isLoading ? '—' : approvedGarages}
-          </span>
-        </div>
-
-        <div style={{ padding: '16px 20px', borderRight: '1px solid var(--rule)' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Total Reviews
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 500 }}>
-            {isLoading ? '—' : totalReviews}
-          </span>
-        </div>
-
-        <div style={{ padding: '16px 20px' }}>
-          <span style={{ display: 'block', fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '4px' }}>
-            Driver Call Taps
-          </span>
-          <span className="tabular-nums" style={{ fontSize: '22px', fontWeight: 500 }}>
-            {isLoading ? '—' : totalCalls}
-          </span>
-        </div>
-      </div>
+      </section>
     </AppShell>
   );
 };

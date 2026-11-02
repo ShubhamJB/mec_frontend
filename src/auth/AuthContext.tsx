@@ -54,7 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     const currentRefreshToken = getStoredRefreshToken();
-    const isAdmin = user?.role === 'ADMIN' || window.location.pathname.startsWith('/admin');
     try {
       if (currentRefreshToken) {
         await apiClient('/auth/logout', {
@@ -68,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAccessToken(null);
       setStoredRefreshToken(null);
       setUser(null);
-      window.location.href = isAdmin ? '/admin/login' : '/login';
+      window.location.href = '/login';
     }
   };
 

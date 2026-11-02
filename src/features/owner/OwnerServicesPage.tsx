@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/AppShell';
 import { ApiError, apiClient } from '../../api/client';
 import { PaginatedResponse, ServiceItem, VehicleTypeItem } from '../../api/types';
+import { FilterChip } from '../../components/FilterChip';
 import { ownerNavItems } from './ownerNav';
+import './owner-services.css';
 
 interface CatalogEntry {
   id: string;
@@ -62,93 +64,47 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
     }
   };
 
-  return (
-    <section style={{ marginBottom: '36px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{title}</h2>
-        <span className="tabular-nums" style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>
-          {selected.size} selected
-        </span>
-      </div>
-      <p style={{ fontSize: 'var(--step-small)', color: 'var(--muted)', marginBottom: '12px' }}>{helper}</p>
+  const visibleEntries = editable ? entries : entries.filter((entry) => selected.has(entry.id));
 
-      <div role="group" aria-label={title} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-        {!editable && selected.size === 0 && (
-          <span style={{ fontSize: 'var(--step-caption)', color: 'var(--muted)' }}>None selected yet.</span>
-        )}
-        {(editable ? entries : entries.filter((entry) => selected.has(entry.id))).map((entry) => {
-          const isSelected = selected.has(entry.id);
-          const chipStyle: React.CSSProperties = {
-            padding: '8px 14px',
-            fontSize: 'var(--step-caption)',
-            fontWeight: isSelected ? 600 : 400,
-            color: isSelected ? 'var(--accent-ink)' : 'var(--ink)',
-            backgroundColor: isSelected ? 'var(--accent)' : 'var(--card)',
-            border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-            borderRadius: '999px',
-          };
-          return editable ? (
-            <button
-              key={entry.id}
-              type="button"
-              role="checkbox"
-              aria-checked={isSelected}
-              onClick={() => onToggle(entry.id)}
-              style={{ ...chipStyle, cursor: 'pointer' }}
-            >
-              {entry.name}
-            </button>
-          ) : (
-            <span key={entry.id} style={chipStyle}>
-              {entry.name}
-            </span>
-          );
-        })}
+  return (
+    <section className="svc-group">
+      <div className="svc-group__head">
+        <h2>{title}</h2>
+        <span className="svc-group__count tabular-nums">{selected.size} selected</span>
+      </div>
+      <p className="svc-group__helper">{helper}</p>
+
+      <div role="group" aria-label={title} className="filter-chips svc-group__chips">
+        {!editable && selected.size === 0 && <span className="svc-group__empty">None selected yet.</span>}
+        {visibleEntries.map((entry) => (
+          <FilterChip
+            key={entry.id}
+            label={entry.name}
+            checked={selected.has(entry.id)}
+            readOnly={!editable}
+            onChange={() => onToggle(entry.id)}
+          />
+        ))}
       </div>
 
       {editable && (
-      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <label style={{ fontSize: 'var(--step-small)', color: 'var(--ink-secondary)' }} htmlFor={`custom-${title}`}>
-          {customLabel}
-        </label>
-        <input
-          id={`custom-${title}`}
-          type="text"
-          maxLength={100}
-          value={customName}
-          onChange={(e) => setCustomName(e.target.value)}
-          placeholder={customPlaceholder}
-          style={{
-            flex: '1 1 220px',
-            maxWidth: '320px',
-            padding: '8px 12px',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--card)',
-          }}
-        />
-        <button
-          type="submit"
-          disabled={adding}
-          style={{
-            padding: '8px 14px',
-            fontSize: 'var(--step-caption)',
-            fontWeight: 500,
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--card)',
-            cursor: 'pointer',
-          }}
-        >
-          {adding ? 'Adding…' : 'Add'}
-        </button>
-      </form>
+        <form onSubmit={handleAdd} className="svc-add">
+          <label htmlFor={`custom-${title}`}>{customLabel}</label>
+          <input
+            id={`custom-${title}`}
+            className="c-input"
+            type="text"
+            maxLength={100}
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            placeholder={customPlaceholder}
+          />
+          <button type="submit" className="c-btn c-btn--ghost" disabled={adding}>
+            {adding ? 'Adding…' : 'Add'}
+          </button>
+        </form>
       )}
-      {editable && customError && (
-        <div style={{ marginTop: '6px', fontSize: 'var(--step-small)', color: 'var(--status-danger-ink)' }}>
-          {customError}
-        </div>
-      )}
+      {editable && customError && <div className="svc-add__error">{customError}</div>}
     </section>
   );
 };
@@ -286,37 +242,16 @@ export const OwnerServicesPage: React.FC = () => {
       navItems={ownerNavItems}
       actions={
         isLoading ? null : isEditing ? (
-          <button
-            type="button"
-            onClick={cancelEditing}
-            disabled={isSaving}
-            style={{
-              padding: '6px 12px',
-              fontSize: 'var(--step-small)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--card)',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="button" className="c-btn c-btn--ghost" onClick={cancelEditing} disabled={isSaving}>
             Cancel
           </button>
         ) : (
           <button
             type="button"
+            className="c-btn"
             onClick={() => {
               setNotice(null);
               setIsEditing(true);
-            }}
-            style={{
-              padding: '6px 12px',
-              fontSize: 'var(--step-small)',
-              fontWeight: 500,
-              color: 'var(--on-dark)',
-              backgroundColor: 'var(--ink)',
-              border: '1px solid var(--ink)',
-              borderRadius: 'var(--radius-sm)',
-              cursor: 'pointer',
             }}
           >
             Edit
@@ -324,8 +259,8 @@ export const OwnerServicesPage: React.FC = () => {
         )
       }
     >
-      <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-        <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)', marginBottom: '24px' }}>
+      <div className="svc-page">
+        <p className="svc-intro">
           {isEditing
             ? 'Tap to choose what your workshop offers. Customers can filter garages by these, so pick everything that applies.'
             : 'This is what customers see on your listing. Click Edit to change it.'}
@@ -334,21 +269,14 @@ export const OwnerServicesPage: React.FC = () => {
         {notice && (
           <div
             role={notice.kind === 'error' ? 'alert' : 'status'}
-            style={{
-              padding: '12px',
-              fontSize: 'var(--step-small)',
-              borderRadius: 'var(--radius-sm)',
-              marginBottom: '20px',
-              backgroundColor: notice.kind === 'ok' ? 'var(--status-open-bg)' : 'var(--status-danger-bg)',
-              color: notice.kind === 'ok' ? 'var(--status-open-ink)' : 'var(--status-danger-ink)',
-            }}
+            className={`svc-notice${notice.kind === 'ok' ? ' is-ok' : ' is-error'}`}
           >
             {notice.text}
           </div>
         )}
 
         {isLoading ? (
-          <div style={{ color: 'var(--muted)' }}>Loading…</div>
+          <div className="svc-intro">Loading…</div>
         ) : (
           <>
             <ChipGroup
@@ -376,27 +304,12 @@ export const OwnerServicesPage: React.FC = () => {
             />
 
             {isEditing && (
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={isSaving || !isDirty}
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: !isDirty ? 'var(--muted)' : 'var(--ink)',
-                  color: 'var(--on-dark)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: 'var(--step-caption)',
-                  cursor: isSaving || !isDirty ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {isSaving ? 'Saving…' : 'Save changes'}
-              </button>
-              {isDirty && !isSaving && (
-                <span style={{ fontSize: 'var(--step-small)', color: 'var(--muted)' }}>You have unsaved changes.</span>
-              )}
-            </div>
+              <div className="svc-save">
+                <button type="button" className="c-btn" onClick={handleSave} disabled={isSaving || !isDirty}>
+                  {isSaving ? 'Saving…' : 'Save changes'}
+                </button>
+                {isDirty && !isSaving && <span>You have unsaved changes.</span>}
+              </div>
             )}
           </>
         )}

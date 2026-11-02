@@ -161,22 +161,26 @@
 }
 
 
-.owner-roadside-overview {
-  min-height: 0;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 14px;
-  padding: 18px 20px;
-  border-radius: 12px;
-}
-.owner-roadside-overview-main { display: grid; grid-template-columns: auto auto; align-items: center; gap: 7px 12px; min-width: 0; }
-.owner-roadside-overview-label { color: var(--ink); font-size: 14px; font-weight: 650; }
-.owner-roadside-summary-detail,.owner-roadside-summary-note { grid-column: 1 / -1; color: var(--muted); font-size: 12px; line-height: 1.45; }
-.owner-roadside-summary-note { color: var(--ink-secondary,var(--ink)); }
-.owner-roadside-summary-action { display: flex; align-items: center; justify-content: flex-end; gap: 18px; }
-.owner-roadside-summary-action p { max-width: 300px; color: var(--muted); font-size: 11px; line-height: 1.45; }
-.owner-roadside-edit-settings { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 39px; border: 1px solid var(--accent); border-radius: 10px; padding: 8px 12px; background: var(--card); color: var(--accent); font: inherit; font-size: 12px; font-weight: 620; transition: background .18s ease, transform .18s ease; }
-.owner-roadside-edit-settings:hover { background: color-mix(in srgb,var(--accent) 6%,var(--card)); transform: translateY(-1px); }
+.owner-roadside-overview { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; box-sizing: border-box; min-height: 0; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px 16px; background: var(--card); }
+.owner-roadside-overview > div { display: initial; }
+.owner-roadside-overview-top { display: flex !important; width: 100%; align-items: flex-start !important; justify-content: space-between; gap: 18px; }
+.owner-roadside-overview-label { color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .09em; }
+.owner-roadside-overview-top h2 { margin-top: 5px; font-size: 17px; font-weight: 620; letter-spacing: -.025em; }
+.owner-roadside-live { flex: none; min-height: 27px; border: 1px solid var(--border); border-radius: 7px; padding: 5px 9px; background: var(--bg); font-size: 11px; font-weight: 570; }
+.owner-roadside-live.is-on { border-color: color-mix(in srgb,var(--status-open-ink) 25%,var(--border)); background: var(--status-open-bg); }
+.owner-roadside-overview-facts { display: grid !important; width: 100%; grid-template-columns: repeat(3,minmax(0,1fr)); margin-top: 16px; border-block: 1px solid var(--rule); }
+.owner-roadside-overview-fact { display: grid !important; grid-template-columns: 18px minmax(0,1fr); align-content: center; gap: 4px 9px !important; min-width: 0; padding: 13px 16px !important; border-left: 1px solid var(--rule); }
+.owner-roadside-overview-fact:first-child { border-left: 0; padding-left: 0 !important; }
+.owner-roadside-overview-fact > svg { grid-row: 1 / span 2; align-self: center; color: var(--accent); }
+.owner-roadside-overview-fact > span { color: var(--muted); font-size: 11px; }
+.owner-roadside-overview-fact > strong { min-width: 0; color: var(--ink); font-size: 14px; font-weight: 620; overflow-wrap: anywhere; }
+.owner-roadside-overview-note { display: flex !important; width: 100%; align-items: flex-start !important; gap: 9px !important; margin-top: 13px; color: var(--ink-secondary,var(--ink)); }
+.owner-roadside-overview-note svg { flex: none; margin-top: 2px; color: var(--muted); }
+.owner-roadside-overview-note p { font-size: 12px; line-height: 1.5; }
+.owner-roadside-overview-footer { display: flex !important; width: 100%; align-items: center !important; justify-content: space-between; gap: 18px !important; margin-top: 15px; }
+.owner-roadside-overview-footer p { max-width: 500px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.owner-roadside-edit-settings { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid var(--accent); border-radius: 9px; padding: 8px 12px; background: color-mix(in srgb,var(--accent) 5%,var(--card)); color: var(--accent); font: inherit; font-size: 12px; font-weight: 620; transition: background .18s ease, transform .18s ease; }
+.owner-roadside-edit-settings:hover { background: color-mix(in srgb,var(--accent) 10%,var(--card)); transform: translateY(-1px); }
 .owner-roadside-open-summary { display: flex; align-items: center; justify-content: space-between; margin: 0 0 14px; padding: 0 2px; color: var(--muted); font-size: 12px; }
 .owner-roadside-open-summary strong { color: var(--ink); font-size: 18px; font-variant-numeric: tabular-nums; }
 .owner-roadside-layout { display: block; }
@@ -192,7 +196,11 @@
 .owner-roadside-table td:first-child,.owner-roadside-table td:nth-child(2),.owner-roadside-table td:nth-child(3),.owner-roadside-table td:nth-child(4),.owner-roadside-table td:nth-child(5),.owner-roadside-table td:nth-child(6) { grid-column: auto; grid-row: auto; justify-self: auto; }
 .owner-roadside-table tbody tr:hover { background: color-mix(in srgb,var(--accent) 3%,var(--card)); }
 .owner-roadside-problem { max-width: 250px; }
-.owner-roadside-location { white-space: normal; max-width: 230px; }
+.owner-roadside-location { align-items: flex-start; white-space: normal; max-width: 230px; gap: 7px; }
+.owner-roadside-location > svg { flex: none; margin-top: 2px; color: var(--accent); }
+.owner-roadside-location-copy { display: grid; min-width: 0; gap: 3px; }
+.owner-roadside-location-copy strong { color: var(--ink); font-size: 13px; font-weight: 620; line-height: 1.35; overflow-wrap: anywhere; }
+.owner-roadside-location-copy small { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; line-height: 1.35; }
 .owner-roadside-status { border-radius: 4px; padding: 3px 8px; }
 .owner-roadside-action { min-height: 32px; border-radius: 7px; padding: 6px 9px; font-size: 11px; }
 .owner-roadside-backdrop { position: fixed; inset: 0; z-index: 100001; display: grid; place-items: center; overflow-y: auto; padding: 22px; background: rgb(15 20 24 / 54%); opacity: 0; transition: opacity 480ms cubic-bezier(.4,0,.2,1); }
@@ -211,14 +219,18 @@
 .owner-roadside-privacy,.owner-roadside-catalog-note { margin: 0 24px 18px; }
 .owner-roadside-modal :focus-visible,.owner-roadside-edit-settings:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 900px) {
-  .owner-roadside-overview { align-items: flex-start; }
-  .owner-roadside-summary-action { align-items: flex-end; flex-direction: column; gap: 10px; }
+  .owner-roadside-overview { align-items: stretch; }
 }
 @media (max-width: 640px) {
-  .owner-roadside-overview { align-items: stretch; flex-direction: column; }
-  .owner-roadside-summary-action { align-items: stretch; }
-  .owner-roadside-summary-action p { max-width: none; }
-  .owner-roadside-edit-settings { align-self: flex-start; }
+  .owner-roadside-overview { padding: 16px; }
+  .owner-roadside-overview-facts { grid-template-columns: 1fr; }
+  .owner-roadside-overview-fact,.owner-roadside-overview-fact:first-child { grid-template-columns: 18px minmax(0,1fr) auto; padding: 10px 0 !important; border-left: 0; border-top: 1px solid var(--rule); }
+  .owner-roadside-overview-fact:first-child { border-top: 0; }
+  .owner-roadside-overview-fact > svg { grid-row: 1; }
+  .owner-roadside-overview-fact > span { align-self: center; }
+  .owner-roadside-overview-fact > strong { text-align: right; }
+  .owner-roadside-overview-footer { align-items: stretch !important; flex-direction: column; gap: 11px !important; }
+  .owner-roadside-edit-settings { align-self: stretch; }
   .owner-roadside-backdrop { align-items: end; padding: 0; }
   .owner-roadside-modal { width: 100%; max-height: 92vh; overflow-y: auto; border-radius: 12px 12px 0 0; }
   .owner-roadside-modal.is-open { transform: translateY(0); }
@@ -258,3 +270,64 @@
 
 .owner-roadside-status.is-call-confirmed{border-color:color-mix(in srgb,var(--status-open-ink) 30%,var(--border));background:var(--status-open-bg);color:var(--status-open-ink)}.owner-roadside-status.is-call-needed{border-color:color-mix(in srgb,var(--status-danger-ink) 32%,var(--border));background:color-mix(in srgb,var(--status-danger-ink) 8%,var(--card));color:var(--status-danger-ink)}
 .owner-roadside-status.is-call-failed{border-color:color-mix(in srgb,var(--status-danger-ink) 42%,var(--border));background:color-mix(in srgb,var(--status-danger-ink) 12%,var(--card));color:var(--status-danger-ink);font-weight:750}
+
+.owner-roadside-details-note{color:var(--muted);font-size:10px;line-height:1.5}.owner-roadside-input-suffix{position:relative}.owner-roadside-input-suffix input{padding-right:72px!important}.owner-roadside-input-suffix span{position:absolute;top:50%;right:10px;transform:translateY(-50%);color:var(--muted);font-size:10px}.owner-roadside-details-modal{max-height:calc(100dvh - 32px);overflow:auto}.owner-roadside-details-modal .owner-roadside-decline-actions{margin-top:4px}
+.owner-roadside-details-modal .owner-roadside-field-row { grid-template-columns: minmax(0,1fr) 112px; align-items: end; gap: 12px; }
+.owner-roadside-details-modal .owner-roadside-field input,
+.owner-roadside-details-modal .owner-roadside-field select,
+.owner-roadside-details-modal .owner-roadside-field textarea { box-sizing: border-box; min-width: 0; }
+.owner-roadside-feedback{display:grid;justify-items:start;gap:3px;margin-top:7px;color:var(--status-open-ink);font-size:10px}.owner-roadside-feedback strong{font-weight:650}.owner-roadside-feedback span{font-variant-numeric:tabular-nums}.owner-roadside-feedback small{display:-webkit-box;overflow:hidden;max-width:200px;-webkit-box-orient:vertical;-webkit-line-clamp:2;color:var(--muted);font-size:9px;line-height:1.4}.owner-roadside-feedback.is-partial{color:var(--status-unavail-ink)}.owner-roadside-feedback.is-unresolved{color:var(--status-danger-ink)}
+
+/* Compact notification menu: every unread item keeps its severity and actions in view. */
+.owner-roadside-notification-popover { width: min(460px,calc(100vw - 28px)); border-radius: 12px; }
+.owner-roadside-notification-list { display: grid; gap: 0; max-height: min(470px,calc(100vh - 170px)); padding: 0; overflow: auto; }
+.owner-roadside-notification { margin: 0; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; padding: 13px 15px; background: var(--card); }
+.owner-roadside-notification.is-high { border-color: var(--rule); border-left: 3px solid var(--status-danger-ink); padding-left: 12px; background: color-mix(in srgb,var(--status-danger-ink) 4%,var(--card)); }
+.owner-roadside-notification-top { margin-bottom: 7px; }
+.owner-roadside-notification-top time { color: var(--muted); font-size: 10px; }
+.owner-roadside-notification > strong { font-size: 12px; line-height: 1.45; }
+.owner-roadside-notification > p { margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.owner-roadside-notification-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 9px; }
+.owner-roadside-notification-call { min-height: 34px; border-radius: 8px; padding: 7px 10px; font-size: 11px; }
+.owner-roadside-notification-read { display: inline-flex; min-height: 34px; align-items: center; gap: 5px; margin: 0; border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px; background: var(--card); color: var(--ink-secondary,var(--ink)); font-size: 11px; font-weight: 560; text-decoration: none; cursor: pointer; }
+.owner-roadside-notification-read:hover { border-color: var(--accent); color: var(--accent); }
+.owner-roadside-notification.is-read { opacity: .7; }
+.owner-roadside-notification.is-read .owner-roadside-notification-actions { display: none; }
+.owner-roadside-notification-popover > header { background: var(--card); }
+.owner-roadside-notification-popover > header { gap: 12px; }
+.owner-roadside-notification-popover > header > .owner-roadside-notification-header-actions { display: flex; flex: none; align-items: center; gap: 12px; margin-left: auto; }
+.owner-roadside-notification-popover > header .owner-roadside-mark-all-text { width: auto; height: auto; min-width: 0; border: 0; border-radius: 0; padding: 5px 0; background: transparent; color: var(--accent); font: inherit; font-size: 11px; font-weight: 650; white-space: nowrap; cursor: pointer; }
+.owner-roadside-notification-popover > header .owner-roadside-mark-all-text:hover:not(:disabled) { background: transparent; color: color-mix(in srgb,var(--accent) 80%,black); text-decoration: underline; text-underline-offset: 3px; }
+.owner-roadside-notification-popover > header .owner-roadside-mark-all-text:disabled { cursor: wait; opacity: .6; }
+.owner-roadside-notification-popover > header .owner-roadside-notification-header-actions > button[aria-label="Close notifications"] { flex: none; }
+.owner-roadside-notification-all { min-height: 43px; font-size: 12px; }
+
+.console .owner-roadside-header { align-items: flex-end; gap: 24px; margin-bottom: 28px; }
+.console .owner-roadside-header h1 { font-family: var(--font-serif); font-size: 34px; font-weight: 400; letter-spacing: -.015em; }
+.console .owner-roadside-header p { font-size: 15px; }
+.console .owner-roadside-header-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+.console .owner-roadside-notification-anchor { display: flex; }
+
+.console .owner-roadside-bell,
+.console .owner-roadside-refresh,
+.console .owner-roadside-edit-settings {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; min-height: 44px; margin: 0; padding: 0 20px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: 9999px; background: var(--card); color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 480; line-height: 1; white-space: nowrap; transform: none;
+}
+.console .owner-roadside-bell:hover,
+.console .owner-roadside-refresh:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); transform: none; }
+.console .owner-roadside-bell.is-urgent { border-color: var(--status-danger-ink); color: var(--status-danger-ink); }
+.console .owner-roadside-bell b { display: inline-grid; min-width: 22px; height: 22px; padding: 0 6px; place-items: center; border-radius: 9999px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 500; }
+.console .owner-roadside-bell.is-urgent b { background: var(--status-danger-ink); }
+
+.console .owner-roadside-edit-settings { border-color: var(--accent); background: transparent; color: var(--accent); }
+.console .owner-roadside-edit-settings:hover { background: var(--tint, #e6e8fb); transform: none; }
+.console .owner-roadside-overview-footer { align-items: center; gap: 20px; }
+.console .owner-roadside-overview-footer p { font-size: 13px; }
+@media (max-width: 760px) {
+  .console .owner-roadside-header { align-items: flex-start; flex-direction: column; }
+  .console .owner-roadside-header-actions { justify-content: flex-start; }
+  .console .owner-roadside-edit-settings { align-self: stretch; }
+}
