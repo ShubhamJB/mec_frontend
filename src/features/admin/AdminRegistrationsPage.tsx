@@ -2,6 +2,9 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { AppShell } from '../../components/AppShell';
 import { apiClient } from '../../api/client';
 import { PaginatedResponse } from '../../api/types';
+import { getAdminNavItems } from './adminNav';
+import { RegistrationReviewModal, RegistrationDetail } from './RegistrationReviewModal';
+import { LoaderCircle } from 'lucide-react';
 
 interface GarageRegAdminItem {
   id?: string;
@@ -27,6 +30,9 @@ export const AdminRegistrationsPage: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReg, setSelectedReg] = useState<GarageRegAdminItem | null>(null);
+  const [reviewDetail, setReviewDetail] = useState<RegistrationDetail | null>(null);
+  const [reviewDetailError, setReviewDetailError] = useState<string | null>(null);
+  const [reviewLoadingId, setReviewLoadingId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [submittingAction, setSubmittingAction] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -108,6 +114,23 @@ export const AdminRegistrationsPage: React.FC = () => {
     setActionError(null);
   };
 
+  const openReview = async (row: GarageRegAdminItem) => {
+    if (reviewLoadingId) return;
+    setReviewLoadingId(row.garage_id);
+    setActionError(null);
+    setReviewDetail(null);
+    setReviewDetailError(null);
+    try {
+      const detail = await apiClient<RegistrationDetail>(`/admin/garage-registrations/${row.garage_id}`, { skipGlobalLoader: true });
+      setReviewDetail(detail);
+    } catch (err: unknown) {
+      setReviewDetailError(err instanceof Error ? err.message : 'Could not load the full submission.');
+    } finally {
+      setSelectedReg(row);
+      setReviewLoadingId(null);
+    }
+  };
+
   const handleDecision = async (decision: 'APPROVE' | 'REJECT') => {
     if (!selectedReg) return;
     if (decision === 'REJECT' && !rejectionReason.trim()) {
@@ -153,18 +176,8 @@ export const AdminRegistrationsPage: React.FC = () => {
     }
   };
 
-  const navItems = [
-    { label: 'Overview', path: '/admin' },
-    { label: 'Garage Registrations', path: '/admin/registrations' },
-    { label: 'Profile Changes', path: '/admin/profile-changes' },
-    { label: 'Garages', path: '/admin/garages' },
-    { label: 'Users', path: '/admin/users' },
-    { label: 'Review Reports', path: '/admin/reports' },
-    { label: 'Audit Log', path: '/admin/audit' },
-  ];
-
   return (
-    <AppShell title="Garage Registration Submissions" scopeName="Admin Moderation" navItems={navItems}>
+    <AppShell title="Garage Registration Submissions" scopeName="Admin Moderation" navItems={getAdminNavItems({ registrations: statusFilter === 'PENDING' ? totalItems : undefined })}>
       {/* Success Notification Alert */}
       {successNotice && (
         <div
@@ -228,7 +241,7 @@ export const AdminRegistrationsPage: React.FC = () => {
           No garage registrations found matching {statusFilter ? `"${statusFilter}"` : 'any filter'}.
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: selectedReg ? '1fr 380px' : '1fr', gap: '24px' }}>
+        <div>
           {/* Table Container */}
           <div>
             <div className="dt-frame">
@@ -333,11 +346,10 @@ export const AdminRegistrationsPage: React.FC = () => {
                         <td>
                           <button
                             className="dt-action"
-                            onClick={() => {
-                              setSelectedReg(row);
-                              setActionError(null);
-                            }}
+                            disabled={reviewLoadingId !== null}
+                            onClick={() => void openReview(row)}
                           >
+                            {reviewLoadingId === row.garage_id && <LoaderCircle size={14} className="dt-spin" aria-hidden="true" />}
                             {row.approval_status === 'PENDING' ? 'Review' : 'View'}
                           </button>
                         </td>
@@ -404,143 +416,26 @@ export const AdminRegistrationsPage: React.FC = () => {
             )}
           </div>
 
-          {/* Review / Details Panel */}
-          {selectedReg && (
-            <div
-              style={{
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                padding: '20px',
-                backgroundColor: 'var(--surface)',
-                height: 'fit-content',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600 }}>
-                  {selectedReg.approval_status === 'PENDING' ? 'Decision Panel' : 'Registration Detail'}
-                </h3>
-                <button onClick={() => setSelectedReg(null)} style={{ fontSize: '12px', color: 'var(--muted)', cursor: 'pointer' }}>
-                  Close
-                </button>
-              </div>
-
-              <div style={{ fontSize: 'var(--step-small)', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <p><strong>Garage:</strong> {selectedReg.name || selectedReg.garage_name || 'Unnamed'}</p>
-                <p><strong>Owner:</strong> {selectedReg.owner_name} ({selectedReg.owner_email})</p>
-                <p><strong>Address:</strong> {selectedReg.address}</p>
-                {selectedReg.phone && <p><strong>Phone:</strong> {selectedReg.phone}</p>}
-                <p className="tabular-nums"><strong>Expected Version:</strong> v{selectedReg.registration_version}</p>
-                <p>
-                  <strong>Status:</strong>{' '}
-                  <span
-                    style={{
-                      fontWeight: 600,
-                      color:
-                        selectedReg.approval_status === 'APPROVED'
-                          ? 'var(--status-open-ink)'
-                          : selectedReg.approval_status === 'PENDING'
-                          ? 'var(--status-unavail-ink)'
-                          : 'var(--status-danger-ink)',
-                    }}
-                  >
-                    {selectedReg.approval_status}
-                  </span>
-                </p>
-              </div>
-
-              {selectedReg.approval_status === 'PENDING' ? (
-                <>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', marginBottom: '4px' }}>
-                      Rejection Reason (required only if rejecting)
-                    </label>
-                    <textarea
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      placeholder="e.g. Invalid commercial address or unsupported service"
-                      rows={3}
-                      style={{
-                        width: '100%',
-                        padding: '8px 10px',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'var(--surface-raised)',
-                      }}
-                    />
-                  </div>
-
-                  {actionError && (
-                    <div style={{ fontSize: '12px', color: 'var(--status-danger-ink)', marginBottom: '12px' }}>
-                      {actionError}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      disabled={submittingAction}
-                      onClick={() => handleDecision('APPROVE')}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        backgroundColor: 'var(--accent)',
-                        color: 'var(--on-dark)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontWeight: 500,
-                        fontSize: 'var(--step-small)',
-                        cursor: submittingAction ? 'not-allowed' : 'pointer',
-                        opacity: submittingAction ? 0.7 : 1,
-                      }}
-                    >
-                      {submittingAction ? 'Processing...' : 'Approve'}
-                    </button>
-                    <button
-                      disabled={submittingAction}
-                      onClick={() => handleDecision('REJECT')}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        backgroundColor: 'var(--status-danger-ink)',
-                        color: 'var(--on-dark)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontWeight: 500,
-                        fontSize: 'var(--step-small)',
-                        cursor: submittingAction ? 'not-allowed' : 'pointer',
-                        opacity: submittingAction ? 0.7 : 1,
-                      }}
-                    >
-                      {submittingAction ? 'Processing...' : 'Reject'}
-                    </button>
-                  </div>
-                </>
-              ) : selectedReg.approval_status === 'APPROVED' ? (
-                <div
-                  style={{
-                    padding: '12px 14px',
-                    backgroundColor: 'var(--status-open-bg)',
-                    color: 'var(--status-open-ink)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: 'var(--step-small)',
-                    fontWeight: 500,
-                  }}
-                >
-                  This workshop registration has been approved and is publicly discoverable.
-                </div>
-              ) : (
-                <div
-                  style={{
-                    padding: '12px 14px',
-                    backgroundColor: 'var(--status-danger-bg)',
-                    color: 'var(--status-danger-ink)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: 'var(--step-small)',
-                  }}
-                >
-                  This registration submission was rejected.
-                </div>
-              )}
-            </div>
-          )}
         </div>
+      )}
+      {selectedReg && (
+        <RegistrationReviewModal
+          registration={selectedReg}
+          detail={reviewDetail}
+          detailError={reviewDetailError}
+          rejectionReason={rejectionReason}
+          onReasonChange={setRejectionReason}
+          submitting={submittingAction}
+          error={actionError}
+          onDecision={handleDecision}
+          onClose={() => {
+            setSelectedReg(null);
+            setReviewDetail(null);
+            setReviewDetailError(null);
+            setActionError(null);
+            setRejectionReason('');
+          }}
+        />
       )}
     </AppShell>
   );

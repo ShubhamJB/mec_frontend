@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../../components/AppShell';
 import { LocationPicker } from '../../components/map/LocationPicker';
+import { LoaderCircle, LocateFixed, Check, MapPin } from 'lucide-react';
+import { FilterChip } from '../../components/FilterChip';
+import { useToast } from '../../components/ToastProvider';
+import './owner-registration.css';
 import { ownerNavItems } from './ownerNav';
 import { apiClient } from '../../api/client';
 import { ServiceItem, VehicleTypeItem, PaginatedResponse } from '../../api/types';
@@ -49,8 +53,15 @@ export const OwnerRegistrationPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [phone, setPhone] = useState('+1');
   const [address, setAddress] = useState('');
-  const [latitude, setLatitude] = useState('27.7172');
-  const [longitude, setLongitude] = useState('85.3240');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [manualCoordinates, setManualCoordinates] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const { showToast } = useToast();
+  const [addressLookup, setAddressLookup] = useState(false);
+  const [addressFilled, setAddressFilled] = useState(false);
+  const addressRef = useRef('');
+  const lastAutoAddressRef = useRef<string | null>(null);
 
   // Catalogs
   const [availableServices, setAvailableServices] = useState<ServiceItem[]>([]);
@@ -96,19 +107,51 @@ export const OwnerRegistrationPage: React.FC = () => {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    addressRef.current = address;
+  }, [address]);
+
+  const fillAddressFromCoordinates = async (lat: number, lng: number) => {
+    setAddressLookup(true);
+    try {
+      const query = new URLSearchParams({ latitude: String(lat), longitude: String(lng) });
+      const place = await apiClient<{ location_label: string | null }>(`/roadside/location-label?${query}`, { skipGlobalLoader: true });
+      const label = place.location_label?.trim();
+      const current = addressRef.current.trim();
+      if (label && (current === '' || current === lastAutoAddressRef.current)) {
+        lastAutoAddressRef.current = label;
+        setAddress(label);
+        setAddressFilled(true);
+        window.setTimeout(() => setAddressFilled(false), 1600);
+      }
+    } catch {
+      /* address stays editable; lookup is best-effort */
+    } finally {
+      setAddressLookup(false);
+    }
+  };
+
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      showToast('Location is not available in this browser. Enter coordinates manually.', 'error');
+      setManualCoordinates(true);
       return;
     }
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLatitude(pos.coords.latitude.toFixed(6));
         setLongitude(pos.coords.longitude.toFixed(6));
+        setManualCoordinates(false);
+        setLocating(false);
+        void fillAddressFromCoordinates(pos.coords.latitude, pos.coords.longitude);
       },
       () => {
-        alert('Could not retrieve your location. Please enter coordinates manually.');
-      }
+        setLocating(false);
+        showToast('Could not access your location. You can enter coordinates manually.', 'error');
+        setManualCoordinates(true);
+      },
+      { enableHighAccuracy: true, timeout: 12000 }
     );
   };
 
@@ -176,6 +219,10 @@ export const OwnerRegistrationPage: React.FC = () => {
     }
     if (!address.trim()) {
       setFormError('Please enter a commercial street address.');
+      return;
+    }
+    if (!latitude.trim() || !longitude.trim()) {
+      setFormError('Set your workshop location: use your current location, tap the map, or enter coordinates manually.');
       return;
     }
     const lat = parseFloat(latitude);
@@ -587,402 +634,216 @@ export const OwnerRegistrationPage: React.FC = () => {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Step 1: Workshop Profile */}
             {currentStep === 1 && (
-              <section
-                style={{
-                  backgroundColor: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sheet)',
-                  padding: '28px 32px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>1. Workshop Details</h2>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 500 }}>Step 1 of 3</span>
+              <section className="reg-card">
+                <header className="reg-card__head">
+                  <div>
+                    <h2>1. Workshop details</h2>
+                    <p>Basic business information displayed on your public profile and driver discovery cards.</p>
                   </div>
-                  <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
-                    Basic business information displayed on your public profile and driver discovery cards.
-                  </p>
+                  <span className="reg-card__step">Step 1 of 3</span>
+                </header>
+
+                <div className="reg-location-card">
+                  <div className="reg-location-card__copy">
+                    <span className="reg-location-card__icon"><MapPin size={20} strokeWidth={1.7} /></span>
+                    <div>
+                      <strong>Workshop location *</strong>
+                      <p>We&apos;ll pin your workshop and fill in your address automatically.</p>
+                    </div>
+                  </div>
+                  <div className="reg-location">
+                    <button type="button" className="c-btn reg-location__button" onClick={handleUseCurrentLocation} disabled={locating}>
+                      {locating ? <LoaderCircle size={18} className="reg-spin" aria-hidden="true" /> : <LocateFixed size={18} aria-hidden="true" />}
+                      {locating ? 'Finding your location…' : latitude && longitude ? 'Update from my current location' : 'Use my current location'}
+                    </button>
+                    {latitude && longitude && (
+                      <span className="reg-location__chip tabular-nums">
+                        <Check size={14} strokeWidth={2.4} /> {latitude}, {longitude}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="reg-location__toggle"
+                    aria-expanded={manualCoordinates}
+                    onClick={() => setManualCoordinates((open) => !open)}
+                  >
+                    {manualCoordinates ? 'Hide manual coordinate entry' : 'Enter latitude and longitude manually'}
+                  </button>
+
+                  {manualCoordinates && (
+                    <div className="reg-coords">
+                      <label>
+                        Latitude
+                        <input type="number" step="any" value={latitude} onChange={(e) => setLatitude(e.target.value)} onBlur={() => { const la = parseFloat(latitude); const lo = parseFloat(longitude); if (Number.isFinite(la) && Number.isFinite(lo)) void fillAddressFromCoordinates(la, lo); }} placeholder="27.7172" />
+                      </label>
+                      <label>
+                        Longitude
+                        <input type="number" step="any" value={longitude} onChange={(e) => setLongitude(e.target.value)} onBlur={() => { const la = parseFloat(latitude); const lo = parseFloat(longitude); if (Number.isFinite(la) && Number.isFinite(lo)) void fillAddressFromCoordinates(la, lo); }} placeholder="85.3240" />
+                      </label>
+                    </div>
+                  )}
+
+                  <div className="reg-map">
+                    <LocationPicker
+                      latitude={Number.isFinite(parseFloat(latitude)) ? parseFloat(latitude) : null}
+                      longitude={Number.isFinite(parseFloat(longitude)) ? parseFloat(longitude) : null}
+                      onChange={(lat, lng) => {
+                        setLatitude(lat.toFixed(6));
+                        setLongitude(lng.toFixed(6));
+                        void fillAddressFromCoordinates(lat, lng);
+                      }}
+                      height={280}
+                    />
+                    <p className="reg-location__hint">Tap the map to place or fine-tune your workshop pin.</p>
+                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 24px' }}>
-                  {/* Garage Name */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 500, marginBottom: '6px' }}>
-                      Workshop / Garage Name *
-                    </label>
+                <div className="reg-grid">
+                  <div className="reg-field">
+                    <label htmlFor="reg-name">Workshop / garage name *</label>
                     <input
+                      id="reg-name"
+                      className="reg-input"
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Apex Performance Tuning &amp; Repairs"
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '14px',
-                      }}
+                      placeholder="e.g. Apex Performance Tuning & Repairs"
                     />
                   </div>
 
-                  {/* Phone */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-                      <label style={{ fontSize: 'var(--step-small)', fontWeight: 500 }}>
-                        Phone Number *
-                      </label>
-                      <span style={{ fontSize: '11px', color: 'var(--muted)' }}>E.164 (e.g. +1234567890)</span>
-                    </div>
+                  <div className="reg-field">
+                    <label htmlFor="reg-phone">
+                      Phone number * <span>E.164, e.g. +9779812345678</span>
+                    </label>
                     <input
+                      id="reg-phone"
+                      className="reg-input"
                       type="text"
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+1234567890"
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '14px',
-                      }}
+                      placeholder="+9779812345678"
                     />
                   </div>
 
-                  {/* Commercial Address */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 500, marginBottom: '6px' }}>
-                      Commercial Street Address *
+                  <div className="reg-field reg-field--wide">
+                    <label htmlFor="reg-address">
+                      Commercial street address *
+                      {addressLookup && <span className="reg-lookup"><LoaderCircle size={13} className="reg-spin" aria-hidden="true" /> Looking up your address…</span>}
+                      {!addressLookup && addressFilled && <span className="reg-lookup is-done"><Check size={13} strokeWidth={2.6} /> Filled from your location</span>}
                     </label>
                     <input
+                      id="reg-address"
+                      className={`reg-input${addressFilled ? ' is-filled' : ''}`}
                       type="text"
                       required
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      placeholder="e.g. 144 Motor Parkway, Bay 4, Queens, NY"
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '14px',
-                      }}
+                      placeholder="Fills automatically from your location, or type it here"
                     />
                   </div>
 
-                  {/* GPS Coordinates */}
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <label style={{ fontSize: 'var(--step-small)', fontWeight: 500 }}>
-                        GPS Coordinates (Lat / Lng) *
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleUseCurrentLocation}
-                        style={{
-                          fontSize: '12px',
-                          color: 'var(--accent)',
-                          fontWeight: 600,
-                          textDecoration: 'underline',
-                          cursor: 'pointer',
-                          padding: 0,
-                          background: 'none',
-                          border: 'none',
-                        }}
-                      >
-                        Use my current location
-                      </button>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <input
-                        type="number"
-                        step="any"
-                        required
-                        value={latitude}
-                        onChange={(e) => setLatitude(e.target.value)}
-                        placeholder="Latitude"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px',
-                          border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '14px',
-                        }}
-                      />
-                      <input
-                        type="number"
-                        step="any"
-                        required
-                        value={longitude}
-                        onChange={(e) => setLongitude(e.target.value)}
-                        placeholder="Longitude"
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px',
-                          border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '14px',
-                        }}
-                      />
-                    </div>
-                    <div style={{ marginTop: '12px' }}>
-                      <LocationPicker
-                        latitude={Number.isFinite(parseFloat(latitude)) ? parseFloat(latitude) : null}
-                        longitude={Number.isFinite(parseFloat(longitude)) ? parseFloat(longitude) : null}
-                        onChange={(lat, lng) => {
-                          setLatitude(lat.toFixed(6));
-                          setLongitude(lng.toFixed(6));
-                        }}
-                        height={300}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Description spanning 2 cols */}
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 500, marginBottom: '6px' }}>
-                      About Your Workshop (Optional)
-                    </label>
+                  <div className="reg-field reg-field--wide">
+                    <label htmlFor="reg-description">About your workshop (optional)</label>
                     <textarea
+                      id="reg-description"
+                      className="reg-input reg-input--area"
                       rows={3}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Share certifications, experience, specialty equipment, or warranty policies..."
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '14px',
-                        resize: 'vertical',
-                      }}
                     />
                   </div>
                 </div>
 
-                {/* Step 1 Actions */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    paddingTop: '16px',
-                    borderTop: '1px solid var(--rule)',
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={handleNextStep1}
-                    style={{
-                      padding: '11px 28px',
-                      backgroundColor: 'var(--accent)',
-                      color: 'var(--on-dark)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    Next: Services &amp; Vehicles &rarr;
+                <footer className="reg-actions reg-actions--end">
+                  <button type="button" className="c-btn" onClick={handleNextStep1}>
+                    Next: Services &amp; vehicles &rarr;
                   </button>
-                </div>
+                </footer>
               </section>
             )}
 
             {/* Step 2: Services & Vehicle Types */}
             {currentStep === 2 && (
-              <section
-                style={{
-                  backgroundColor: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sheet)',
-                  padding: '28px 32px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>2. Services &amp; Capabilities</h2>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 500 }}>Step 2 of 3</span>
+              <section className="reg-card">
+                <header className="reg-card__head">
+                  <div>
+                    <h2>2. Services &amp; capabilities</h2>
+                    <p>Drivers filter discovery by services offered and supported vehicle categories.</p>
                   </div>
-                  <p style={{ color: 'var(--muted)', fontSize: 'var(--step-caption)' }}>
-                    Drivers filter discovery by services offered and supported vehicle categories.
-                  </p>
-                </div>
+                  <span className="reg-card__step">Step 2 of 3</span>
+                </header>
 
-                {/* 2-Column Grid for Services (Left) and Vehicles (Right) */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px' }}>
-                  {/* Left Column: Services */}
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 600, marginBottom: '8px' }}>
-                      Offered Services (Select all that apply) *
-                    </label>
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr',
-                        gap: '6px',
-                        height: '220px',
-                        overflowY: 'auto',
-                        border: '1px solid var(--rule)',
-                        borderRadius: 'var(--radius-sm)',
-                        padding: '12px 14px',
-                        backgroundColor: 'var(--surface-raised)',
-                      }}
-                    >
-                      {availableServices.map((s) => (
-                        <label
-                          key={s.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            padding: '4px 6px',
-                            borderRadius: '3px',
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedServiceIds.includes(s.id)}
-                            onChange={() => toggleService(s.id)}
-                          />
-                          <span>{s.name}</span>
-                        </label>
-                      ))}
-                    </div>
-
-                    <div style={{ marginTop: '10px' }}>
-                      <input
-                        type="text"
-                        value={customServicesInput}
-                        onChange={(e) => setCustomServicesInput(e.target.value)}
-                        placeholder="Custom services (comma-separated)..."
-                        style={{
-                          width: '100%',
-                          padding: '9px 12px',
-                          border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: 'var(--step-small)',
-                        }}
+                <div className="reg-pick">
+                  <div className="reg-pick__head">
+                    <h3>Services you offer *</h3>
+                    <span className="tabular-nums">{selectedServiceIds.length} selected</span>
+                  </div>
+                  <p className="reg-pick__helper">For example oil change, brake repair or tyre replacement. Select all that apply.</p>
+                  <div role="group" aria-label="Services you offer" className="filter-chips">
+                    {availableServices.map((service) => (
+                      <FilterChip
+                        key={service.id}
+                        label={service.name}
+                        checked={selectedServiceIds.includes(service.id)}
+                        onChange={() => toggleService(service.id)}
                       />
-                    </div>
+                    ))}
                   </div>
+                  <div className="reg-add">
+                    <label htmlFor="reg-custom-services">Missing one?</label>
+                    <input
+                      id="reg-custom-services"
+                      className="reg-input"
+                      type="text"
+                      value={customServicesInput}
+                      onChange={(e) => setCustomServicesInput(e.target.value)}
+                      placeholder="Add your own services, separated by commas"
+                    />
+                  </div>
+                </div>
 
-                  {/* Right Column: Vehicle Types */}
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <label style={{ display: 'block', fontSize: 'var(--step-small)', fontWeight: 600, marginBottom: '8px' }}>
-                      Vehicle Types Serviced *
-                    </label>
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr',
-                        gap: '6px',
-                        height: '220px',
-                        overflowY: 'auto',
-                        border: '1px solid var(--rule)',
-                        borderRadius: 'var(--radius-sm)',
-                        padding: '12px 14px',
-                        backgroundColor: 'var(--surface-raised)',
-                      }}
-                    >
-                      {availableVehicleTypes.map((vt) => (
-                        <label
-                          key={vt.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            padding: '4px 6px',
-                            borderRadius: '3px',
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedVehicleTypeIds.includes(vt.id)}
-                            onChange={() => toggleVehicleType(vt.id)}
-                          />
-                          <span>{vt.name}</span>
-                        </label>
-                      ))}
-                    </div>
-
-                    <div style={{ marginTop: '10px' }}>
-                      <input
-                        type="text"
-                        value={customVehicleTypesInput}
-                        onChange={(e) => setCustomVehicleTypesInput(e.target.value)}
-                        placeholder="Custom vehicle types (comma-separated)..."
-                        style={{
-                          width: '100%',
-                          padding: '9px 12px',
-                          border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: 'var(--step-small)',
-                        }}
+                <div className="reg-pick">
+                  <div className="reg-pick__head">
+                    <h3>Vehicles you work on *</h3>
+                    <span className="tabular-nums">{selectedVehicleTypeIds.length} selected</span>
+                  </div>
+                  <p className="reg-pick__helper">Which kinds of vehicles can you repair?</p>
+                  <div role="group" aria-label="Vehicles you work on" className="filter-chips">
+                    {availableVehicleTypes.map((vehicleType) => (
+                      <FilterChip
+                        key={vehicleType.id}
+                        label={vehicleType.name}
+                        checked={selectedVehicleTypeIds.includes(vehicleType.id)}
+                        onChange={() => toggleVehicleType(vehicleType.id)}
                       />
-                    </div>
+                    ))}
+                  </div>
+                  <div className="reg-add">
+                    <label htmlFor="reg-custom-vehicles">Missing one?</label>
+                    <input
+                      id="reg-custom-vehicles"
+                      className="reg-input"
+                      type="text"
+                      value={customVehicleTypesInput}
+                      onChange={(e) => setCustomVehicleTypesInput(e.target.value)}
+                      placeholder="Add your own vehicle types, separated by commas"
+                    />
                   </div>
                 </div>
 
-                {/* Step 2 Actions */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingTop: '16px',
-                    borderTop: '1px solid var(--rule)',
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => handlePrevStep(1)}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: 'var(--surface)',
-                      color: 'var(--ink)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      border: '1px solid var(--border)',
-                    }}
-                  >
-                    &larr; Back: Workshop Details
+                <footer className="reg-actions">
+                  <button type="button" className="c-btn c-btn--ghost" onClick={() => handlePrevStep(1)}>
+                    &larr; Back: Workshop details
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleNextStep2}
-                    style={{
-                      padding: '11px 28px',
-                      backgroundColor: 'var(--accent)',
-                      color: 'var(--on-dark)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    Next: Operating Hours &rarr;
+                  <button type="button" className="c-btn" onClick={handleNextStep2}>
+                    Next: Operating hours &rarr;
                   </button>
-                </div>
+                </footer>
               </section>
             )}
 

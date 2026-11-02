@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Building2,
-  ClipboardCheck,
-  FilePenLine,
-  Flag,
-  LayoutDashboard,
-  ScrollText,
-  UsersRound,
-} from 'lucide-react';
+import { getAdminNavItems } from './adminNav';
 import { AppShell } from '../../components/AppShell';
 import { apiClient } from '../../api/client';
 import { AdminDashboardCounts } from '../../api/types';
@@ -40,15 +32,7 @@ export const AdminDashboardPage: React.FC = () => {
   const totalReviews = counts?.total_reviews ?? counts?.total_reviews_count ?? 0;
   const totalCalls = counts?.total_call_clicks ?? counts?.call_clicks_count ?? 0;
 
-  const navItems = [
-    { label: 'Overview', path: '/admin', icon: LayoutDashboard },
-    { label: 'Garage Registrations', path: '/admin/registrations', count: pendingRegs, icon: ClipboardCheck },
-    { label: 'Profile Changes', path: '/admin/profile-changes', count: pendingProfile, icon: FilePenLine },
-    { label: 'Garages', path: '/admin/garages', icon: Building2 },
-    { label: 'Users', path: '/admin/users', icon: UsersRound },
-    { label: 'Review Reports', path: '/admin/reports', count: pendingReports, icon: Flag },
-    { label: 'Audit Log', path: '/admin/audit', icon: ScrollText },
-  ];
+  const navItems = getAdminNavItems({ registrations: pendingRegs, profileChanges: pendingProfile, reports: pendingReports });
 
   const show = (value: number) => (isLoading ? '—' : value.toLocaleString());
 
